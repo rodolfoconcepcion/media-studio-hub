@@ -135,7 +135,7 @@ def _get_allowed_roots():
     custom_dir = get_music_dir()
     if custom_dir:
         roots.append(os.path.realpath(custom_dir))
-    return [os.path.realpath(r) for r in roots if os.path.exists(r) or r.startswith(("/media", "/share", "/DATA"))]
+    return [os.path.realpath(r) for r in roots]
 
 def _safe_path(filepath):
     """
