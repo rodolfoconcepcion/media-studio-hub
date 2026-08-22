@@ -951,23 +951,83 @@
             flex: 1;
             min-width: 0;
         }
+        /* ── Tablet (≤768px) ── */
         @media (max-width: 768px) {
+            body { padding: 16px; padding-bottom: 130px; }
+
+            .header { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+            .controls-header { flex-wrap: wrap; gap: 8px; width: 100%; }
+
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+            .metric-card { padding: 12px 14px; gap: 12px; }
+
             .app-body { flex-direction: column; gap: 0; }
             .sidebar-nav {
                 width: 100%;
                 flex-direction: row;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
+                overflow-x: auto;
                 position: static;
                 max-height: none;
                 border-radius: 12px;
-                margin-bottom: 16px;
+                margin-bottom: 12px;
                 padding: 6px;
+                gap: 2px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
             }
+            .sidebar-nav::-webkit-scrollbar { display: none; }
             .sidebar-brand { display: none; }
-            .sidebar-tab { width: auto; flex: 1 1 auto; justify-content: center; border-left: none; border-bottom: 3px solid transparent; padding: 8px 10px; border-radius: 6px; font-size: 0.8rem; }
+            .sidebar-tab {
+                width: auto;
+                flex: 0 0 auto;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                padding: 8px 14px;
+                border-radius: 8px;
+                font-size: 0.78rem;
+                gap: 3px;
+            }
             .sidebar-tab.active { border-bottom-color: var(--text-accent); border-left-color: transparent; }
+            .sidebar-tab-icon { width: auto; font-size: 1.15rem; }
+            .sidebar-tab-label { display: block; font-size: 0.68rem; white-space: nowrap; }
+
+            .sticky-player { padding: 10px 14px; gap: 10px; }
+            .player-track-info { max-width: 40%; min-width: 0; gap: 8px; }
+            .player-cover-art { width: 40px; height: 40px; }
+            .player-center-controls { max-width: none; gap: 8px; }
+            .player-btn-queue span:not(:first-child) { display: none; }
+        }
+
+        /* ── Phone (≤480px) ── */
+        @media (max-width: 480px) {
+            body { padding: 10px; padding-bottom: 120px; }
+
+            .header h1 { font-size: 1.25rem; }
+            .controls-header { gap: 6px; }
+            .seg-btn { padding: 5px 10px; font-size: 0.78rem; }
+
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+            .metric-card { padding: 10px 12px; gap: 8px; }
+            .metric-icon { font-size: 1.4rem; }
+            .metric-value { font-size: 1.2rem !important; }
+
             .sidebar-tab-label { display: none; }
-            .sidebar-tab-icon { width: auto; font-size: 1.2rem; }
+            .sidebar-tab { padding: 8px 10px; }
+            .sidebar-tab-icon { font-size: 1.25rem; }
+
+            .sticky-player { padding: 8px 10px; gap: 8px; }
+            .player-track-info { max-width: 45%; }
+            .player-cover-art { width: 34px; height: 34px; border-radius: 50%; }
+            .player-center-controls { display: none; }
+            .player-btn-vlc { display: none; }
+            .player-track-title { font-size: 0.82rem; }
+
+            .card { padding: 14px !important; }
+            .btn-act, .btn-clear { padding: 9px 14px; font-size: 0.82rem; }
         }
 
         .search-box {
