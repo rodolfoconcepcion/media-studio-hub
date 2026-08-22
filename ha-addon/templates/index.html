@@ -2189,6 +2189,31 @@
     </div>
 
     <script>
+        // ── Ingress & Reverse Proxy Base Path Resolver ──
+        const API_BASE = (function() {
+            const p = window.location.pathname;
+            if (p && p !== '/' && !p.endsWith('.html')) {
+                return p.replace(/\/+$/, '');
+            }
+            return '';
+        })();
+
+        function apiUrl(path) {
+            if (!path) return '';
+            if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:') || path.startsWith('data:')) return path;
+            if (!path.startsWith('/')) path = '/' + path;
+            return (API_BASE ? API_BASE + path : path);
+        }
+
+        // Intercept window.fetch to automatically route /api/ calls through Ingress base path
+        const _origFetch = window.fetch;
+        window.fetch = function(resource, init) {
+            if (typeof resource === 'string' && resource.startsWith('/api/')) {
+                resource = apiUrl(resource);
+            }
+            return _origFetch.call(this, resource, init);
+        };
+
         function toB64(str) {
             try {
                 return btoa(unescape(encodeURIComponent(str || '')));
@@ -3171,7 +3196,7 @@
             document.getElementById('editTrackNum').value = (tr.track_num || '01').split('/')[0];
             document.getElementById('editYear').value = '';
             document.getElementById('editCoverUrl').value = '';
-            document.getElementById('editCoverPreview').src = `/api/cover?path=${encodeURIComponent(filepath)}`;
+            document.getElementById('editCoverPreview').src = apiUrl(`/api/cover?path=${encodeURIComponent(filepath)}`);
 
             const queryInput = document.getElementById('onlineMetaQuery');
             queryInput.value = `${tr.artist || ''} ${tr.display_title || tr.name || ''}`.trim();
@@ -3191,7 +3216,7 @@
             if (url && url.startsWith('http')) {
                 preview.src = url;
             } else if (currentEditingTrackPath) {
-                preview.src = `/api/cover?path=${encodeURIComponent(currentEditingTrackPath)}`;
+                preview.src = apiUrl(`/api/cover?path=${encodeURIComponent(currentEditingTrackPath)}`);
             }
         }
 
@@ -4501,9 +4526,9 @@
             
             document.getElementById('playerTitle').textContent = track.display_title || track.name;
             document.getElementById('playerSub').textContent = track.artist ? `${track.artist} • ${track.folder}` : track.folder;
-            cover.src = `/api/cover?path=${encodeURIComponent(track.full_path)}`;
+            cover.src = apiUrl(`/api/cover?path=${encodeURIComponent(track.full_path)}`);
             
-            player.src = `/api/stream?path=${encodeURIComponent(track.full_path)}`;
+            player.src = apiUrl(`/api/stream?path=${encodeURIComponent(track.full_path)}`);
             sticky.style.display = 'flex';
             
             if (isPlayerMinimized) {
