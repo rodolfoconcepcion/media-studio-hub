@@ -10,19 +10,35 @@ Validates:
 - Language switcher (English vs Español)
 """
 
-import sys
+import sys, subprocess, time, urllib.request
 from playwright.sync_api import sync_playwright
 
 BASE_URL = "http://localhost:8888"
 
+def ensure_server_running():
+    try:
+        urllib.request.urlopen(f"{BASE_URL}/api/status", timeout=1)
+        return None
+    except Exception:
+        proc = subprocess.Popen([sys.executable, "media_server.py"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for _ in range(20):
+            try:
+                urllib.request.urlopen(f"{BASE_URL}/api/status", timeout=1)
+                return proc
+            except Exception:
+                time.sleep(0.5)
+        return proc
+
 def test_ui_e2e():
+    server_proc = ensure_server_running()
     print(f"🚀 Starting Playwright E2E UI tests on {BASE_URL}...")
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        
-        # 1. Load root web interface
-        page.goto(BASE_URL, wait_until="networkidle")
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            
+            # 1. Load root web interface
+            page.goto(BASE_URL, wait_until="networkidle")
         title = page.title()
         print(f"  ✓ Page Title: '{title}'")
         assert "Media Studio" in title, f"Unexpected page title: {title}"
@@ -107,6 +123,9 @@ def test_ui_e2e():
 
         browser.close()
         print("\n🎉 ALL PLAYWRIGHT E2E UI TESTS PASSED SUCCESSFULLY!")
+    finally:
+        if server_proc:
+            server_proc.terminate()
 
 if __name__ == "__main__":
     try:
