@@ -1235,7 +1235,7 @@
         <div class="header">
             <div>
                 <h1><span>🎵</span> Media Studio</h1>
-                <div id="hdrSub" style="font-size: 0.92rem; color: var(--text-sub); margin-top: 4px;">YouTube & Spotify Automated Control Center</div>
+                <div id="hdrSub" style="font-size: 0.92rem; color: var(--text-sub); margin-top: 4px;">Universal Audio & Video Stream Control Center</div>
             </div>
             
             <div class="controls-header">
@@ -1253,8 +1253,8 @@
             </div>
         </div>
 
-        <!-- View Navigation Bar -->
-        <div class="view-nav-bar">
+        <!-- NAVIGATION VIEW TABS -->
+        <div class="view-tabs">
             <button class="view-tab-btn active" id="tabBtnStudio" onclick="switchMainView('studio')">⚡ <span id="lblNavStudio">Studio & Queue</span></button>
             <button class="view-tab-btn" id="tabBtnExplorer" onclick="switchMainView('explorer')">📁 <span id="lblNavExplorer">Music Folder Explorer</span></button>
             <button class="view-tab-btn" id="tabBtnDuplicates" onclick="switchMainView('duplicates')">👯 <span id="lblNavDuplicates">Duplicates & Cleaner</span> <span id="badgeDupCount" style="background:#ef4444; color:#fff; font-size:0.75rem; padding:2px 7px; border-radius:10px; font-weight:800; display:none; margin-left:4px;">0</span></button>
@@ -1299,7 +1299,7 @@
             <div class="control-panel">
                 <h3 style="color: var(--text-main); font-size: 1.1rem;" id="lblNewDl">🚀 Submit New Download</h3>
                 <div class="input-group">
-                    <input type="text" id="urlInput" oninput="onUrlInputChanged()" onkeydown="if(event.key==='Enter') submitDownload()" placeholder="Paste Spotify (Track, Album, Playlist) or YouTube URL here...">
+                    <input type="text" id="urlInput" oninput="onUrlInputChanged()" onkeydown="if(event.key==='Enter') submitDownload()" placeholder="Paste media stream, playlist, or audio URL here...">
                     <select id="modeSelect">
                         <option value="audio">🎵 Audio MP3 320k</option>
                         <option value="video">📺 Video MP4 (Max Res)</option>
@@ -2021,7 +2021,7 @@
 
         const i18n = {
             en: {
-                hdrSub: "YouTube & Spotify Automated Control Center",
+                hdrSub: "Universal Audio & Video Stream Control Center",
                 lblNavStudio: "Studio & Queue",
                 lblNavExplorer: "Music Folder Explorer",
                 lblNavHistory: "Download History & Statistics",
@@ -2031,7 +2031,7 @@
                 lblStatActive: "Active Jobs",
                 lblStatCompleted: "Completed Tasks",
                 lblNewDl: "🚀 Submit New Download",
-                placeholder: "Paste Spotify (Track, Album, Playlist) or YouTube URL here...",
+                placeholder: "Paste media stream, playlist, or audio URL here...",
                 btnDl: "Download",
                 lblAutoRetry: "🔁 <strong>Auto-Schedule & Smart Retry</strong> (Automatically retries in background until 100% of playlist completes)",
                 lblQueue: "⚡ Download Queue & Job Controls",
@@ -2123,7 +2123,7 @@
                 toastMetaSaved: "✅ Metadata & ID3 tags updated."
             },
             es: {
-                hdrSub: "Centro de Control Automatizado YouTube & Spotify",
+                hdrSub: "Centro de Control Universal de Audio y Video",
                 lblNavStudio: "Estudio & Cola",
                 lblNavExplorer: "Explorador de Música",
                 lblNavHistory: "Historial & Estadísticas",
@@ -2133,7 +2133,7 @@
                 lblStatActive: "Descargas Activas",
                 lblStatCompleted: "Tareas Completadas",
                 lblNewDl: "🚀 Enviar Nueva Descarga",
-                placeholder: "Pega aquí el link de Spotify (Canción, Álbum, Playlist) o YouTube...",
+                placeholder: "Pega aquí el enlace de audio, video o playlist...",
                 btnDl: "Descargar",
                 lblAutoRetry: "🔁 <strong>Auto-Schedule & Reintento Automático</strong> (Reintenta en segundo plano hasta bajar el 100% de la playlist)",
                 lblQueue: "⚡ Cola de Descargas & Controles",

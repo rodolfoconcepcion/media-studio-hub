@@ -6,7 +6,7 @@
 
 ## ✨ Features
 
-- 🎵 **Universal Downloader**: Extract high-bitrate audio (320kbps MP3, lossless FLAC) and 4K video from YouTube, Spotify, SoundCloud, Bandcamp, TikTok, and 1000+ sources.
+- 🎵 **Universal Downloader**: Extract high-bitrate audio (320kbps MP3, lossless FLAC) and 4K video from online media streams, audio links, and public video sources via standard open-source toolchains.
 - ⚡ **Ingress & Native HA Sidebar**: Seamlessly integrated into the Home Assistant sidebar without port forwarding or SSL certificate complexities.
 - 🏷️ **Built-in ID3 Tag Editor**: Edit metadata, song titles, artists, albums, genres, release years, and embed custom album artwork directly into audio files.
 - 📜 **Auto-Sync M3U Playlists**: Automatically maintains and synchronizes `.m3u8` playlists for your local music collection.

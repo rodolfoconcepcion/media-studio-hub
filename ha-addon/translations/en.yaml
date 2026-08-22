@@ -3,8 +3,8 @@ configuration:
     name: "Target Music Storage Directory"
     description: "Target folder where downloaded songs and playlists are stored. Recommended: '/media/music' for Home Assistant (enables native Media Browser & Smart Speaker playback), '/DATA/Media/Music' for CasaOS/NAS, or '~/Music' for Linux Desktop."
   default_bitrate:
-    name: "Audio Quality & Bitrate"
-    description: "Preferred encoding format for all YouTube Music & Spotify conversions."
+    name: "Default Audio Bitrate"
+    description: "Preferred encoding format and quality for audio extractions."
   notifications_enabled:
     name: "Desktop & UI Notifications"
     description: "Get instant alerts and notifications when downloads finish or playlist retries complete."
