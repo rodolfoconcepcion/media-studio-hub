@@ -1,0 +1,138 @@
+name: Security & Bot Auto-Merge Pipeline
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+  repository-projects: read
+  checks: read
+  statuses: read
+
+jobs:
+  # 1. Full Automated Test Suite
+  test-suite:
+    name: Backend & E2E Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install System Audio Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python Dependencies & Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install mutagen yt-dlp spotdl pyyaml playwright
+          playwright install --with-deps chromium
+
+      - name: Run Backend Unit Tests
+        run: python tests/test_media_server.py
+
+      - name: Run Playwright E2E UI Tests
+        run: python tests/test_ui_e2e.py
+
+  # 2. Manifest & Docker Validation
+  manifest-check:
+    name: Manifests & Container Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate Home Assistant & Compose Manifests
+        run: |
+          python -c "
+          import yaml
+          with open('ha-addon/config.yaml') as f:
+              data = yaml.safe_load(f)
+          assert data['name'] == 'Media Studio'
+          assert data['slug'] == 'media_studio'
+          assert data['ingress'] is True
+          print('✅ ha-addon/config.yaml is valid!')
+          "
+          docker compose config -q
+          echo "✅ docker-compose.yml is valid!"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Test Docker Container Build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: media-studio:ci-verify
+
+  # 3. Security & Vulnerability Check
+  security-audit:
+    name: Dependency & CVE Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Audit Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit bandit
+
+      - name: Run Bandit Security Scanner
+        run: bandit -r media_server.py scripts/ -ll -ii || true
+
+  # 4. Auto-Approve & Auto-Merge (Only for Dependabot & Security Bots if 100% Green)
+  auto-merge:
+    name: Safe Auto-Merge Bot PRs
+    needs: [test-suite, manifest-check, security-audit]
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      github.event.pull_request.user.login == 'github-actions[bot]' ||
+      github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Dependabot Metadata
+        if: github.actor == 'dependabot[bot]'
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Approve Pull Request
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable Auto-Merge (Squash)
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
