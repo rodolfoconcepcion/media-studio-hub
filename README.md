@@ -2,7 +2,7 @@
 
 [![CI / Automated Tests](https://github.com/rodolfoconcepcion/media-studio-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/rodolfoconcepcion/media-studio-hub/actions/workflows/ci.yml)
 [![Security & CodeQL](https://github.com/rodolfoconcepcion/media-studio-hub/actions/workflows/security.yml/badge.svg)](https://github.com/rodolfoconcepcion/media-studio-hub/actions/workflows/security.yml)
-[![Latest Release](https://img.shields.io/github/v/release/rodolfoconcepcion/media-studio-hub?style=flat&color=10b981)](https://github.com/rodolfoconcepcion/media-studio-hub/releases/latest)
+[![Latest Release](https://img.shields.io/badge/release-v1.2.2-10b981.svg)](https://github.com/rodolfoconcepcion/media-studio-hub/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-3776ab.svg)](https://www.python.org/)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Ingress%20Ready-41BDF5.svg)](https://www.home-assistant.io/)
