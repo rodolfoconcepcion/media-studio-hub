@@ -9,6 +9,8 @@
   - OS: Zorin OS / Ubuntu (Linux, Wayland).
   - Terminal shortcuts live in `~/.local/bin/`.
   - Skills live in `~/.agents/skills/`.
+  - Auto-Pilot Skill: `~/.agents/skills/auto-pilot/`
+  - Rollback Safety Utility: `agent-undo` (`undo`, `undo-commit`, `hard-reset`, `audit`)
 
 ## Model Selection Preferences (CRITICAL)
 - **Coding tasks** (writing, reviewing, refactoring, or auditing code): Always use **Claude Sonnet 4.6 (Thinking)** — this includes any task involving `media_server.py`, tests, CI/CD, scripts, or architectural changes.
