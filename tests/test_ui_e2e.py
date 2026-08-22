@@ -96,6 +96,15 @@ def test_ui_e2e():
         assert "Settings" in page.locator("#lblNavSettings").inner_text(), "English translation failed"
         print("  ✓ Switched language back to English")
 
+        # 7. Test Queue Tracks Expand / Collapse Accordion
+        toggle_btn = page.locator(".btn-toggle-tracks").first
+        if toggle_btn.is_visible():
+            toggle_btn.click()
+            page.wait_for_timeout(300)
+            drawer = page.locator(".queue-tracks-drawer").first
+            assert drawer.is_visible(), "Queue tracks drawer did not open"
+            print("  ✓ Expandable Queue Tracks Drawer tested successfully")
+
         browser.close()
         print("\n🎉 ALL PLAYWRIGHT E2E UI TESTS PASSED SUCCESSFULLY!")
 
