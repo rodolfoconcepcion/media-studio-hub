@@ -1,0 +1,48 @@
+version: 2
+updates:
+  # 1. Python Dependencies (pip)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"
+
+  # 2. GitHub Actions Workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "ci/cd"
+    commit-message:
+      prefix: "chore(ci-deps)"
+    groups:
+      actions-dependencies:
+        patterns:
+          - "*"
+
+  # 3. Docker Base Images
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(docker-deps)"

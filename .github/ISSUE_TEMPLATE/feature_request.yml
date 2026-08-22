@@ -1,0 +1,28 @@
+name: 💡 Feature Request
+description: Propose a new feature, improvement, or enhancement.
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make Media Studio Hub better? Let us know!
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: A clear explanation of the proposed feature.
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Problem or Use Case
+      description: Explain what problem this feature solves or why it is needed.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions Considered
+      description: Any other ideas or workarounds you have considered.
