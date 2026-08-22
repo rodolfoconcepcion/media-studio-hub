@@ -2,34 +2,57 @@ name: media-studio
 services:
   media-studio:
     image: rodolfoconcepcion/media-studio:latest
-    build:
-      context: ..
-      dockerfile: Dockerfile
     container_name: media-studio
     restart: unless-stopped
+    network_mode: bridge
     ports:
-      - "8888:8888"
+      - target: 8888
+        published: "8888"
+        protocol: tcp
     volumes:
-      - /DATA/Media/Music:/root/Music
-      - /DATA/AppData/media-studio:/root/.agents/media_downloader
+      - type: bind
+        source: /DATA/Media/Music
+        target: /root/Music
+      - type: bind
+        source: /DATA/AppData/media-studio
+        target: /root/.agents/media_downloader
     environment:
+      - TZ=America/New_York
       - PUID=1000
       - PGID=1000
-      - TZ=America/New_York
-    devices:
-      - /dev/snd:/dev/snd
     x-casaos:
+      envs:
+        - container: TZ
+          description:
+            en_us: TimeZone (e.g. America/New_York)
+        - container: PUID
+          description:
+            en_us: User ID for file permissions
+        - container: PGID
+          description:
+            en_us: Group ID for file permissions
+      ports:
+        - container: "8888"
+          description:
+            en_us: Web UI Port
+      volumes:
+        - container: /root/Music
+          description:
+            en_us: Music Storage Directory
+        - container: /root/.agents/media_downloader
+          description:
+            en_us: App Data & Database Storage
       architectures:
         - amd64
         - arm64
       main: media-studio
       description:
-        en_us: Universal YouTube & Spotify Downloader, Audio Player, ID3 Tag Editor, Duplicate Cleaner & Library Studio.
-        es_es: Centro de descargas universal de YouTube y Spotify, reproductor de audio, editor de etiquetas ID3 y limpiador de duplicados.
+        en_us: Universal Media Downloader, In-Browser Player, ID3 Tag Editor, Duplicate Cleaner & Library Studio.
+        es_es: Centro de descargas universal, reproductor de audio, editor de etiquetas ID3 y limpiador de duplicados.
       developer: Rodolfo Concepcion
       author: Rodolfo Concepcion
-      icon: https://raw.githubusercontent.com/rodolfoconcepcion/media-studio-hub/main/assets/icon.png
-      thumbnail: https://raw.githubusercontent.com/rodolfoconcepcion/media-studio-hub/main/assets/thumbnail.png
+      icon: https://raw.githubusercontent.com/rodolfoconcepcion/media-studio-hub/main/ha-addon/icon.png
+      thumbnail: https://raw.githubusercontent.com/rodolfoconcepcion/media-studio-hub/main/ha-addon/icon.png
       title:
         en_us: Media Studio
         es_es: Media Studio
