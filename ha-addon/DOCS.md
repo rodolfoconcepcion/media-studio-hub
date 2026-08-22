@@ -17,7 +17,7 @@
 
 ## 🚀 Installation & Setup
 
-1. Open **Home Assistant** $\rightarrow$ **Settings** $\rightarrow$ **Apps** $\rightarrow$ **Install App**.
+1. Open **Home Assistant** ➔ **Settings** ➔ **Apps** ➔ **Install App**.
 2. Refresh the store catalog and locate **Media Studio** under **Local Apps**.
 3. Click **Install**.
 4. Configure your preferred options in the **Configuration** tab (see below).
