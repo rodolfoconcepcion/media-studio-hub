@@ -809,7 +809,7 @@
         }
 
         /* Main View Navigation & Explorer Styles */
-        .view-nav-bar {
+        .view-nav-bar, .view-tabs {
             display: flex;
             gap: 12px;
             margin-bottom: 22px;
@@ -1253,8 +1253,8 @@
             </div>
         </div>
 
-        <!-- NAVIGATION VIEW TABS -->
-        <div class="view-tabs">
+        <!-- View Navigation Bar -->
+        <div class="view-nav-bar">
             <button class="view-tab-btn active" id="tabBtnStudio" onclick="switchMainView('studio')">⚡ <span id="lblNavStudio">Studio & Queue</span></button>
             <button class="view-tab-btn" id="tabBtnExplorer" onclick="switchMainView('explorer')">📁 <span id="lblNavExplorer">Music Folder Explorer</span></button>
             <button class="view-tab-btn" id="tabBtnDuplicates" onclick="switchMainView('duplicates')">👯 <span id="lblNavDuplicates">Duplicates & Cleaner</span> <span id="badgeDupCount" style="background:#ef4444; color:#fff; font-size:0.75rem; padding:2px 7px; border-radius:10px; font-weight:800; display:none; margin-left:4px;">0</span></button>
