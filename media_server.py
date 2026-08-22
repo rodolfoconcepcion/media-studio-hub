@@ -174,9 +174,9 @@ def record_job_to_history(job, final_status=None):
     
     expected = job.get("expected_count") or 1
     downloaded = job.get("downloaded_count", 0)
-    status = final_status or job.get("status") or "completed"
+    status = final_status or job.get("status") or ("completed" if downloaded >= expected else ("partial" if downloaded > 0 else "failed"))
     if status == "completed" and expected and downloaded < expected:
-        status = "partial"
+        status = "partial" if downloaded > 0 else "failed"
     success_pct = round((downloaded / expected) * 100, 1) if expected else 100.0
     
     start_time_str = job.get("added_at") or time.strftime("%Y-%m-%d %H:%M:%S")
@@ -1702,8 +1702,15 @@ def run_download_loop():
                             target_job["next_retry"] = time.strftime("%H:%M:%S", time.localtime(time.time() + 120))
                             log(f"🔁 Auto-Schedule: Next retry for missing tracks ({actual_downloaded}/{expected}) at {target_job['next_retry']}")
                         else:
-                            target_job["status"] = "completed"
-                            log(f"✅ Download completed ({actual_downloaded}/{expected} tracks) for: {url}")
+                            if actual_downloaded >= expected and expected > 0:
+                                target_job["status"] = "completed"
+                                log(f"✅ Download completed ({actual_downloaded}/{expected} tracks) for: {url}")
+                            elif actual_downloaded > 0:
+                                target_job["status"] = "partial"
+                                log(f"⚠️ Download partially completed ({actual_downloaded}/{expected} tracks) for: {url}")
+                            else:
+                                target_job["status"] = "failed"
+                                log(f"❌ Download failed (0/{expected} tracks) for: {url}")
                             
                     record_job_to_history(target_job)
                 save_queue(fresh_queue)
@@ -2128,7 +2135,11 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                 q = get_queue()
                 count = 0
                 for item in q:
-                    if item.get("status") in ["cancelled", "paused", "retry_scheduled"]:
+                    is_incomplete = (
+                        item.get("status") in ["cancelled", "paused", "retry_scheduled", "failed", "partial"]
+                        or (item.get("status") == "completed" and (item.get("expected_count") or 1) > (item.get("downloaded_count") or 0))
+                    )
+                    if is_incomplete:
                         item["status"] = "queued"
                         item["retry_count"] = 0
                         item["retry_epoch"] = 0
