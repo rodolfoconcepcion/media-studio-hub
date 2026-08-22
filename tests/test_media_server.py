@@ -101,13 +101,13 @@ class TestMediaServerIntegration(unittest.TestCase):
         cls.server_thread = threading.Thread(target=run_test_server, daemon=True)
         cls.server_thread.start()
         
-        # Wait for port to open
-        for _ in range(20):
+        # Wait up to 5 seconds for port to open
+        for _ in range(50):
             try:
                 with urllib.request.urlopen(f"{SERVER_URL}/api/status", timeout=1):
                     break
             except Exception:
-                time.sleep(0.15)
+                time.sleep(0.1)
 
     @classmethod
     def tearDownClass(cls):
