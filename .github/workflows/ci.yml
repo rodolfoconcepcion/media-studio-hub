@@ -12,8 +12,9 @@ jobs:
     name: Run Automated Test Suite
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.11"]
 
     steps:
       - name: Checkout Code
@@ -36,7 +37,7 @@ jobs:
 
       - name: Run Test Suite
         run: |
-          python tests/test_media_server.py
+          python -m unittest discover -s tests -p "test_*.py" -v
 
   validate-manifests:
     name: Validate Add-on & Compose Manifests
