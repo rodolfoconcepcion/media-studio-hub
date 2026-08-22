@@ -15,7 +15,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Santo_Domingo
+      - TZ=America/New_York
     devices:
       - /dev/snd:/dev/snd
     x-casaos:
