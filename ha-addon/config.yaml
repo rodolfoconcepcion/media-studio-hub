@@ -1,7 +1,10 @@
 name: "Media Studio"
 description: "Universal YouTube & Spotify Downloader, Audio Player, ID3 Tag Editor & Library Studio with Ingress Support"
-version: "2.0.0"
+url: "https://github.com/rodolfoconcepcion/media-studio-hub"
+documentation: "https://github.com/rodolfoconcepcion/media-studio-hub/blob/main/README.md"
+version: "2.0.1"
 slug: "media_studio"
+stage: "stable"
 init: false
 arch:
   - aarch64
@@ -16,14 +19,29 @@ ingress_port: 8888
 panel_icon: "mdi:music-box-multiple"
 panel_title: "Media Studio"
 homeassistant_api: true
+audio: true
+video: true
 map:
   - share:rw
   - media:rw
+  - config:rw
 options:
   download_dir: "/media/music"
   default_bitrate: "320k"
   notifications_enabled: true
+  auto_retry_enabled: true
+  auto_m3u_sync: true
+  auto_clean_duplicates: false
+  max_retries: 5
+  default_theme: "dark"
+  default_language: "en"
 schema:
   download_dir: str
   default_bitrate: list(320k|256k|flac|192k)
   notifications_enabled: bool
+  auto_retry_enabled: bool
+  auto_m3u_sync: bool
+  auto_clean_duplicates: bool
+  max_retries: int(1,10)
+  default_theme: list(dark|light|glass)
+  default_language: list(en|es)

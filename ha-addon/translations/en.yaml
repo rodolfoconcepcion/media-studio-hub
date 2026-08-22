@@ -1,0 +1,28 @@
+configuration:
+  download_dir:
+    name: "Target Music Storage Directory"
+    description: "Target folder in Home Assistant storage where downloaded songs, albums, and playlists are organized (e.g., /media/music or /share)."
+  default_bitrate:
+    name: "Audio Quality & Bitrate"
+    description: "Preferred encoding format for all YouTube Music & Spotify conversions."
+  notifications_enabled:
+    name: "Desktop & UI Notifications"
+    description: "Get instant alerts and notifications when downloads finish or playlist retries complete."
+  auto_retry_enabled:
+    name: "Auto-Schedule & Smart Retry"
+    description: "Automatically schedule and retry interrupted downloads up to maximum attempts."
+  auto_m3u_sync:
+    name: "Auto-Generate M3U Playlists"
+    description: "Automatically generate and synchronize .m3u8 playlists in the music storage folder for instant smart speaker playback."
+  auto_clean_duplicates:
+    name: "Auto-Clean Duplicate Lower-Quality Tracks"
+    description: "Automatically remove lower-bitrate duplicate tracks when a higher-quality version is downloaded."
+  max_retries:
+    name: "Maximum Retry Attempts"
+    description: "Number of automated retry attempts before marking a download task as failed (1 to 10)."
+  default_theme:
+    name: "Default Theme"
+    description: "Visual appearance theme for the Media Studio web interface (Dark, Light, or Glass)."
+  default_language:
+    name: "Default Language"
+    description: "Interface language (English or Spanish)."

@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
+ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
 ENV LANG=C.UTF-8
@@ -24,9 +24,9 @@ WORKDIR /app
 
 # Copy server, templates and scripts
 COPY media_server.py /app/media_server.py
-COPY ha-addon/templates /app/templates
+COPY templates /app/templates
 COPY scripts /app/scripts
-COPY ha-addon/run.sh /run.sh
+COPY run.sh /run.sh
 RUN chmod +x /run.sh /app/scripts/*.sh
 
 EXPOSE 8888

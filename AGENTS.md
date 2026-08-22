@@ -18,8 +18,10 @@
 - When in doubt: if the task involves editing or generating source code files, default to Claude Sonnet 4.6 (Thinking).
 
 ## Mandatory Production & Language Guidelines (media-studio-hub)
-- **ENGLISH ONLY FOR ALL PRODUCTION ASSETS (CRITICAL):**
-  All code, commit messages, git tags, GitHub releases, docstrings, markdown documentation, PR descriptions, and repository assets MUST ALWAYS be written in English. Spanish/Spanglish is strictly for direct chat with the user.
+- **ENGLISH ONLY FOR ALL INSTRUCTIONS & PRODUCTION ASSETS (CRITICAL):**
+  All instructions, guides, explanations, code, commit messages, git tags, GitHub releases, docstrings, markdown documentation, PR descriptions, and repository assets MUST ALWAYS be written in English.
+- **HOME ASSISTANT ENVIRONMENT (LATEST VERSION):**
+  Always assume the user is running the latest version of Home Assistant (e.g., Apps terminology, `/config/apps`, Quick Search `Ctrl + K`, modern dashboard architecture, and current Supervisor APIs).
 - **ITERATION-BASED VERSION COMMITS:**
   Whenever completing a phase or iteration cycle (e.g., security, refactoring, or UI integration), you MUST package those changes into a clean Git commit representing that milestone (e.g., `git add .` and `git commit -m "chore(iteration): complete [phase] milestone"`).
 - **VISUAL & UI VALIDATION (PLAYWRIGHT / E2E):**
