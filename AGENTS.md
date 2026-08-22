@@ -20,3 +20,7 @@
   Cada vez que completes un ciclo completo o iteración de mejora (por ejemplo, terminar seguridad, refactorización o la integración de UI), DEBES empaquetar esos cambios en un commit limpio de Git que represente esa versión (ej: `git add .` y `git commit -m "chore: version completada de [fase]"`).
 - **REGLA DE VALIDACIÓN VISUAL Y DE UI (PLAYWRIGHT / E2E):**
   Si el proyecto cuenta con pruebas de Playwright o tests E2E, EJÉCUTALAS después de cada cambio de frontend o estilos para asegurarte de que no rompiste la interfaz ni dejaste componentes inconsistentes. Si no existen pruebas de UI y hay cambios visuales, crea un test básico de Playwright para validar que la app carga y los elementos clave responden.
+- **FLUJO POR ITERACIONES:**
+  1. Iteración 1: Seguridad y Backend.
+  2. Iteración 2: Refactorización y Limpieza de Código.
+  3. Iteración 3: UI, Estilos y Tests E2E con Playwright.
