@@ -4,6 +4,7 @@ import socketserver
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import threading
@@ -11,6 +12,27 @@ import time
 import urllib.parse
 import urllib.request
 import hashlib
+
+try:
+    import numpy as np
+    import scipy.signal as signal
+except ImportError:
+    np = None
+    signal = None
+
+try:
+    from mutagen.easyid3 import EasyID3
+    from mutagen.mp3 import MP3
+    from mutagen.id3 import ID3, APIC
+    try:
+        EasyID3.RegisterTextKey('bpm', 'TBPM')
+    except Exception:
+        pass
+except ImportError:
+    EasyID3 = None
+    MP3 = None
+    ID3 = None
+    APIC = None
 
 PORT = 8888
 DATA_DIR = os.path.expanduser("~/.agents/media_downloader")
@@ -525,22 +547,6 @@ def get_file_audio_info(filepath, mtime):
         
     meta_cache[filepath] = info
     return info
-
-import shutil, re
-try:
-    import numpy as np
-    import scipy.signal as signal
-except ImportError:
-    np = None
-    signal = None
-
-from mutagen.easyid3 import EasyID3
-from mutagen.mp3 import MP3
-
-try:
-    EasyID3.RegisterTextKey('bpm', 'TBPM')
-except:
-    pass
 
 bpm_cache = {}
 
