@@ -1636,14 +1636,15 @@ def run_download_loop():
             
             initial_count = count_music_files()
             
+            home_dir = os.path.expanduser("~")
             base_dir = os.path.dirname(os.path.abspath(__file__))
             script_spotify = os.path.join(base_dir, "scripts", "download_spotify.sh")
             if not os.path.exists(script_spotify):
-                script_spotify = "/home/rodolfo/.agents/skills/media-downloader/scripts/download_spotify.sh"
+                script_spotify = os.path.join(home_dir, ".agents", "skills", "media-downloader", "scripts", "download_spotify.sh")
 
             script_yt = os.path.join(base_dir, "scripts", "download_youtube.sh")
             if not os.path.exists(script_yt):
-                script_yt = "/home/rodolfo/.agents/skills/media-downloader/scripts/download_youtube.sh"
+                script_yt = os.path.join(home_dir, ".agents", "skills", "media-downloader", "scripts", "download_youtube.sh")
 
             if "spotify.com" in url:
                 cmd = ["bash", script_spotify, url, get_music_dir()]
@@ -2433,7 +2434,7 @@ def get_ui_html():
         with open(template_path, "r", encoding="utf-8") as f:
             return f.read()
     # Fallback to local search
-    fallback = "/home/rodolfo/templates/index.html"
+    fallback = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "index.html")
     if os.path.exists(fallback):
         with open(fallback, "r", encoding="utf-8") as f:
             return f.read()

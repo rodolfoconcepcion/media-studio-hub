@@ -23,7 +23,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 repo_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
 
-for p in [parent_dir, repo_root, "/home/rodolfo", "."]:
+for p in [parent_dir, repo_root, os.path.expanduser("~"), "."]:
     if os.path.exists(os.path.join(p, "media_server.py")):
         sys.path.insert(0, p)
         break
@@ -88,7 +88,7 @@ class TestMediaServerUnits(unittest.TestCase):
         """Verify _safe_path blocks traversal attempts and accepts valid paths."""
         # Malicious paths
         self.assertIsNone(media_server._safe_path("/etc/shadow"))
-        self.assertIsNone(media_server._safe_path("/home/rodolfo/.ssh/id_rsa"))
+        self.assertIsNone(media_server._safe_path(os.path.expanduser("~/.ssh/id_rsa")))
         self.assertIsNone(media_server._safe_path("~/../root/.bashrc"))
         self.assertIsNone(media_server._safe_path(None))
         self.assertIsNone(media_server._safe_path(""))
