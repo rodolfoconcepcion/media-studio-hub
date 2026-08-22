@@ -18,14 +18,13 @@ echo "🛡️  Providers: YouTube Music -> YouTube -> SoundCloud -> Bandcamp"
 
 INITIAL_COUNT=$(find "$OUTPUT_DIR" -type f -name "*.mp3" 2>/dev/null | wc -l)
 
-# Multi-provider fallback and mobile client emulation to client compatibility
+# Multi-provider fallback and mobile client emulation for speed and compatibility
 SPOTDL_ARGS=(
     --audio youtube-music youtube soundcloud bandcamp
     --threads 4
-    --scan-for-songs
     --overwrite skip
     --archive "$OUTPUT_DIR/.spotdl_archive.txt"
-    --yt-dlp-args "--extractor-args youtube:player_client=android,ios,web"
+    --headless
 )
 
 mkdir -p "$OUTPUT_DIR/_PLAYLISTS_"
