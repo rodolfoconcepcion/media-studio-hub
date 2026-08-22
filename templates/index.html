@@ -1615,11 +1615,14 @@
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="settingDownloadDir" class="form-control" style="font-family: monospace; font-size: 0.85rem;" placeholder="/home/rodolfo/Music">
                         </div>
-                        <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
-                            <span class="pill pill-count" onclick="setPresetDir('~/Music')" style="cursor: pointer;" title="Default Linux ~/Music">📁 ~/Music</span>
-                            <span class="pill pill-count" onclick="setPresetDir('~/Music/Downloads')" style="cursor: pointer;">📁 ~/Music/Downloads</span>
-                            <span class="pill pill-count" onclick="setPresetDir('/media/music')" style="cursor: pointer;" title="Home Assistant Media Directory">🏠 /media/music</span>
-                            <span class="pill pill-count" onclick="setPresetDir('/DATA/Media/Music')" style="cursor: pointer;" title="CasaOS Media Folder">📦 /DATA/Media/Music</span>
+                        <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="font-size: 0.75rem; color: var(--text-sub); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Recommended Presets by Environment:</div>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <span class="pill pill-count" onclick="setPresetDir('/media/music')" style="cursor: pointer; background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.4); color: #38bdf8;" title="Best for Home Assistant OS & Supervised — Instant sync with HA Media Browser and Smart Speakers">🏠 /media/music <small style="opacity: 0.85; margin-left: 4px;">(Home Assistant)</small></span>
+                                <span class="pill pill-count" onclick="setPresetDir('/DATA/Media/Music')" style="cursor: pointer; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24;" title="Best for CasaOS & ZimaOS — Direct integration with CasaOS Files, Navidrome, Plex and Jellyfin">📦 /DATA/Media/Music <small style="opacity: 0.85; margin-left: 4px;">(CasaOS / NAS)</small></span>
+                                <span class="pill pill-count" onclick="setPresetDir('~/Music')" style="cursor: pointer; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #c084fc;" title="Best for Linux Desktop (Zorin OS / Ubuntu) — Native XDG music folder for Rhythmbox, Amberol & VLC">💻 ~/Music <small style="opacity: 0.85; margin-left: 4px;">(Desktop Linux)</small></span>
+                                <span class="pill pill-count" onclick="setPresetDir('~/Music/Downloads')" style="cursor: pointer;" title="Staging folder for unorganized downloads">📁 ~/Music/Downloads <small style="opacity: 0.8; margin-left: 4px;">(Staging)</small></span>
+                            </div>
                         </div>
                     </div>
 
