@@ -24,3 +24,8 @@
   1. Iteración 1: Seguridad y Backend.
   2. Iteración 2: Refactorización y Limpieza de Código.
   3. Iteración 3: UI, Estilos y Tests E2E con Playwright.
+- **REGLA DE RELEASE FINAL (COMPACTED RELEASE & GIT TAG):**
+  Al terminar el ciclo completo (las 3 iteraciones pasadas y validadas con tests E2E verdes), DEBES:
+  1. Crear un Git Tag semántico con la nueva versión (ej: `git tag -a v1.0.0 -m "Release v1.0.0: Producción lista con seguridad, refactorización y UI E2E"`).
+  2. Empujar el tag al repositorio (`git push origin --tags`).
+  3. Crear el Release en GitHub con el resumen consolidado de las 3 fases (vía GitHub CLI `gh release create` o GitHub MCP).
