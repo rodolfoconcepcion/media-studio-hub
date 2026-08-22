@@ -2,7 +2,7 @@ name: "Media Studio"
 description: "Universal YouTube & Spotify Downloader, Audio Player, ID3 Tag Editor & Library Studio with Ingress Support"
 url: "https://github.com/rodolfoconcepcion/media-studio-hub"
 documentation: "https://github.com/rodolfoconcepcion/media-studio-hub/blob/main/README.md"
-version: "2.0.1"
+version: "2.1.0"
 slug: "media_studio"
 stage: "stable"
 init: false
