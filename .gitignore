@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.spotdl_archive.txt
+.yt_archive.txt
+*.log
+settings.json
+queue.json
+history.json
+media_meta_cache.json
+covers/
+Music/
+Videos/
