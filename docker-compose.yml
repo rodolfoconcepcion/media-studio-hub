@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  media-studio:
+    build: .
+    container_name: media-studio
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - ~/Music:/root/Music
+      - ~/.agents/media_downloader:/root/.agents/media_downloader
+    environment:
+      - TZ=America/Santo_Domingo
