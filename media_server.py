@@ -1646,9 +1646,9 @@ def run_download_loop():
                 script_yt = "/home/rodolfo/.agents/skills/media-downloader/scripts/download_youtube.sh"
 
             if "spotify.com" in url:
-                cmd = [script_spotify, url, get_music_dir()]
+                cmd = ["bash", script_spotify, url, get_music_dir()]
             else:
-                cmd = [script_yt, url, "--video" if mode == "video" else "--audio", get_music_dir()]
+                cmd = ["bash", script_yt, url, "--video" if mode == "video" else "--audio", get_music_dir()]
             
             try:
                 current_process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True)
