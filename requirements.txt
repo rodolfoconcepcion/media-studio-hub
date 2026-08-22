@@ -1,4 +1,4 @@
-mutagen>=1.47.0
-yt-dlp>=2024.08.06
-spotdl>=4.2.8
-pyyaml>=6.0.1
+mutagen>=1.48.1
+yt-dlp>=2026.7.4
+spotdl>=4.5.2
+pyyaml>=6.0.3
