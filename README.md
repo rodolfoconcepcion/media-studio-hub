@@ -2,7 +2,7 @@
 
 [![CI / Automated Tests](https://github.com/rodolfoconcepcion/media-studio-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/rodolfoconcepcion/media-studio-hub/actions/workflows/ci.yml)
 [![Security & CodeQL](https://github.com/rodolfoconcepcion/media-studio-hub/actions/workflows/security.yml/badge.svg)](https://github.com/rodolfoconcepcion/media-studio-hub/actions/workflows/security.yml)
-[![Latest Release](https://img.shields.io/badge/release-v1.2.2-10b981.svg)](https://github.com/rodolfoconcepcion/media-studio-hub/releases)
+[![Latest Release](https://img.shields.io/github/v/release/rodolfoconcepcion/media-studio-hub?style=flat&color=10b981)](https://github.com/rodolfoconcepcion/media-studio-hub/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-3776ab.svg)](https://www.python.org/)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Ingress%20Ready-41BDF5.svg)](https://www.home-assistant.io/)
@@ -40,10 +40,14 @@ http://localhost:8888
 
 ## 🏠 Home Assistant Add-on Installation
 
-1. Copy the `ha-addon` folder into your Home Assistant `/addons/media_studio` directory.
-2. In Home Assistant, navigate to **Settings -> Apps -> App store -> ⋮ (top right) -> Check for Updates**.
-3. Install **Media Studio** and click **Start**.
-4. Enable **Show in sidebar** for seamless Ingress access.
+1. In Home Assistant, navigate to **Settings** ➔ **Add-ons** (or **Apps**) ➔ **Add-on Store**.
+2. Click the **⋮ (top right menu)** ➔ **Repositories**.
+3. Add the repository URL:
+   ```text
+   https://github.com/rodolfoconcepcion/media-studio-hub
+   ```
+4. Click **Add** ➔ **Close**, then search for **Media Studio** in the store.
+5. Click **Install**, toggle **Show in sidebar**, and click **Start**.
 
 ---
 
