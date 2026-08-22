@@ -4192,7 +4192,15 @@
                         </div>
                     `;}).join('');
 
-                    // Refresh expanded tracks drawers seamlessly
+                    // ── Instantly restore cached content so the drawer never flashes ──
+                    // Must run synchronously BEFORE any async background fetch calls
+                    expandedQueueJobs.forEach(jobId => {
+                        if (queueTracksCache[jobId]) {
+                            renderQueueTracksContent(jobId, queueTracksCache[jobId]);
+                        }
+                    });
+
+                    // Refresh expanded tracks drawers in background (silent, no spinner)
                     expandedQueueJobs.forEach(jobId => {
                         const foundJob = data.queue.find(x => x.id === jobId);
                         if (foundJob) {
@@ -4319,10 +4327,25 @@
             const downloaded = (data && data.downloaded_tracks) || [];
             
             if (downloaded.length === 0) {
+                const jobStatus = (data && data.status) || '';
+                let emptyIcon, emptyMsg;
+                if (jobStatus === 'queued') {
+                    emptyIcon = '⏱️';
+                    emptyMsg = currentLang === 'es' ? 'En cola — esperando al worker de descarga...' : 'Queued — waiting for download worker...';
+                } else if (jobStatus === 'downloading') {
+                    emptyIcon = '⬇️';
+                    emptyMsg = currentLang === 'es' ? 'Descargando pistas...' : 'Downloading tracks...';
+                } else if (jobStatus === 'paused') {
+                    emptyIcon = '⏸️';
+                    emptyMsg = currentLang === 'es' ? 'Descarga en pausa. Ninguna pista descargada aún.' : 'Download paused. No tracks downloaded yet.';
+                } else {
+                    emptyIcon = '⏳';
+                    emptyMsg = t.lblNoTracksDownloadedYet || 'No tracks downloaded yet for this release.';
+                }
                 container.innerHTML = `
                     <div style="padding: 12px 14px; color: var(--text-sub); font-size: 0.82rem; display: flex; align-items: center; gap: 8px;">
-                        <span>⏳</span>
-                        <span>${t.lblNoTracksDownloadedYet || 'No tracks downloaded yet for this release.'}</span>
+                        <span>${emptyIcon}</span>
+                        <span>${emptyMsg}</span>
                     </div>
                 `;
                 return;
