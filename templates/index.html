@@ -4153,10 +4153,6 @@
                                     </div>
                                     <div class="item-meta" style="flex-direction: column; align-items: flex-start; gap: 4px;">
                                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                            ${hasExpected ? 
-                                                `<span class="pill pill-count">📥 <strong>${dlCount} / ${j.expected_count} tracks</strong> (${pct}%)</span>` : 
-                                                `<span class="pill pill-count">${t.downloadedBadge}<strong>${dlCount} MP3s</strong></span>`
-                                            }
                                             ${j.status === 'retry_scheduled' ? `<span>${t.nextRetry}<strong>${j.next_retry}</strong> (Retry #${j.retry_count})</span>` : `<span>${t.status}<strong>${j.status}</strong> • ${t.added}${j.added_at}</span>`}
                                         </div>
                                         ${hasExpected ? `
@@ -4164,9 +4160,9 @@
                                             <div style="width: ${pct}%; background: linear-gradient(90deg, #0284c7, #10b981); height: 100%; border-radius: 3px; transition: width 0.3s ease;"></div>
                                         </div>` : ''}
 
-                                        <button class="btn-toggle-tracks" id="btn-toggle-${j.id}" onclick="toggleQueueTracks('${j.id}', '${j.url}', ${dlCount})">
+                                        <button class="btn-toggle-tracks" id="btn-toggle-${j.id}" onclick="toggleQueueTracks('${j.id}', '${j.url}', ${dlCount}, ${hasExpected ? j.expected_count : 0}, ${pct})">
                                             <span id="icon-toggle-${j.id}">${isExpanded ? '▼' : '▶'}</span>
-                                            <span id="txt-toggle-${j.id}">${isExpanded ? (t.btnHideDownloadedTracks || 'Hide Tracks') : (t.btnViewDownloadedTracks || 'View Downloaded Tracks')} (${dlCount})</span>
+                                            <span id="txt-toggle-${j.id}">${isExpanded ? (t.btnHideDownloadedTracks || 'Hide Tracks') : (t.btnViewDownloadedTracks || 'View Downloaded Tracks')} (${dlCount}${hasExpected ? ` / ${j.expected_count} · ${pct}%` : ''})</span>
                                         </button>
                                     </div>
                                 </div>
@@ -4271,22 +4267,23 @@
             return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         }
 
-        async function toggleQueueTracks(jobId, url, dlCount) {
+        async function toggleQueueTracks(jobId, url, dlCount, expectedCount = 0, pct = 0) {
             const drawer = document.getElementById(`tracks-drawer-${jobId}`);
             const icon = document.getElementById(`icon-toggle-${jobId}`);
             const text = document.getElementById(`txt-toggle-${jobId}`);
             const t = i18n[currentLang];
+            const countLabel = expectedCount > 0 ? `${dlCount} / ${expectedCount} · ${pct}%` : `${dlCount}`;
             
             if (expandedQueueJobs.has(jobId)) {
                 expandedQueueJobs.delete(jobId);
                 if (drawer) drawer.style.display = 'none';
                 if (icon) icon.innerText = '▶';
-                if (text) text.innerText = `${t.btnViewDownloadedTracks || 'View Downloaded Tracks'} (${dlCount})`;
+                if (text) text.innerText = `${t.btnViewDownloadedTracks || 'View Downloaded Tracks'} (${countLabel})`;
             } else {
                 expandedQueueJobs.add(jobId);
                 if (drawer) drawer.style.display = 'block';
                 if (icon) icon.innerText = '▼';
-                if (text) text.innerText = `${t.btnHideDownloadedTracks || 'Hide Tracks'} (${dlCount})`;
+                if (text) text.innerText = `${t.btnHideDownloadedTracks || 'Hide Tracks'} (${countLabel})`;
                 
                 await loadAndRenderQueueTracks(jobId, url);
             }
