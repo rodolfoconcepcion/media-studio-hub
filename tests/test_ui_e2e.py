@@ -112,7 +112,33 @@ def test_ui_e2e():
             assert "Settings" in page.locator("#lblNavSettings").inner_text(), "English translation failed"
             print("  ✓ Switched language back to English")
 
-            # 7. Test Queue Tracks Expand / Collapse Accordion
+            # 7. Test Collapsible Sidebar (Home Assistant / VS Code style)
+            btn_toggle_sidebar = page.locator("#btnToggleSidebar")
+            sidebar = page.locator("#sidebarNav")
+            assert btn_toggle_sidebar.is_visible(), "Sidebar toggle button not visible"
+            
+            # Click collapse
+            btn_toggle_sidebar.click()
+            page.wait_for_timeout(250)
+            assert "collapsed" in (sidebar.get_attribute("class") or ""), "Sidebar did not collapse on button click"
+            print("  ✓ Sidebar collapsed successfully via toggle button")
+            
+            # Click expand
+            btn_toggle_sidebar.click()
+            page.wait_for_timeout(250)
+            assert "collapsed" not in (sidebar.get_attribute("class") or ""), "Sidebar did not expand back"
+            print("  ✓ Sidebar expanded successfully via toggle button")
+            
+            # Test Keyboard shortcut (Ctrl+B)
+            page.keyboard.press("Control+b")
+            page.wait_for_timeout(250)
+            assert "collapsed" in (sidebar.get_attribute("class") or ""), "Sidebar did not collapse on Ctrl+B"
+            page.keyboard.press("Control+b")
+            page.wait_for_timeout(250)
+            assert "collapsed" not in (sidebar.get_attribute("class") or ""), "Sidebar did not expand on Ctrl+B"
+            print("  ✓ Sidebar Ctrl+B keyboard shortcut verified")
+
+            # 8. Test Queue Tracks Expand / Collapse Accordion
             toggle_btn = page.locator(".btn-toggle-tracks").first
             if toggle_btn.is_visible():
                 toggle_btn.click()

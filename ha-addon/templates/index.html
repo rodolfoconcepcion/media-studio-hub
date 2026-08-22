@@ -809,13 +809,14 @@
         }
 
         /* App Body: Sidebar + Main Content Layout */
+        /* App Body: Sidebar + Main Content Layout */
         .app-body {
             display: flex;
             gap: 20px;
             align-items: flex-start;
         }
         .sidebar-nav {
-            width: 210px;
+            width: 220px;
             flex-shrink: 0;
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -823,17 +824,23 @@
             padding: 10px 8px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
             position: sticky;
             top: 24px;
             max-height: calc(100vh - 120px);
             overflow-y: auto;
+            transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), padding 0.22s ease;
+        }
+        .sidebar-nav.collapsed {
+            width: 58px;
+            padding: 10px 4px;
         }
         .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 10px 10px;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 6px 6px 10px;
             border-bottom: 1px solid var(--border);
             margin-bottom: 6px;
             color: var(--text-sub);
@@ -841,6 +848,39 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.1em;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .sidebar-brand-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow: hidden;
+        }
+        .sidebar-nav.collapsed .sidebar-brand-left span:last-child {
+            display: none;
+        }
+        .sidebar-toggle-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.18s ease;
+        }
+        .sidebar-toggle-btn:hover {
+            background: var(--bg-item);
+            color: var(--text-main);
+            border-color: var(--border-item);
+        }
+        .sidebar-nav.collapsed .sidebar-toggle-btn {
+            margin: 0 auto;
         }
         .sidebar-tab {
             display: flex;
@@ -857,7 +897,31 @@
             cursor: pointer;
             text-align: left;
             width: 100%;
-            transition: background 0.15s ease, color 0.15s ease, border-left-color 0.15s ease;
+            transition: background 0.15s ease, color 0.15s ease, border-left-color 0.15s ease, padding 0.2s ease;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sidebar-nav.collapsed .sidebar-tab {
+            padding: 10px 0;
+            justify-content: center;
+            border-left-width: 0;
+            border-bottom: 3px solid transparent;
+        }
+        .sidebar-nav.collapsed .sidebar-tab.active {
+            border-bottom-color: var(--text-accent);
+            border-left-color: transparent;
+        }
+        .sidebar-nav.collapsed .sidebar-tab-label {
+            display: none;
+        }
+        .sidebar-nav.collapsed #badgeDupCount {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            margin: 0;
+            font-size: 0.6rem;
+            padding: 1px 4px;
         }
         .sidebar-tab:hover {
             background: var(--bg-item);
@@ -1323,26 +1387,29 @@
             <!-- Sidebar Navigation -->
             <nav class="sidebar-nav" id="sidebarNav">
                 <div class="sidebar-brand">
-                    <span>🎵</span> <span>Navigation</span>
+                    <div class="sidebar-brand-left">
+                        <span>🎵</span> <span>Navigation</span>
+                    </div>
+                    <button class="sidebar-toggle-btn" id="btnToggleSidebar" onclick="toggleSidebarCollapse()" title="Toggle Sidebar (Ctrl+B / [)">◨</button>
                 </div>
-                <button class="sidebar-tab active" id="tabBtnStudio" onclick="switchMainView('studio')">
+                <button class="sidebar-tab active" id="tabBtnStudio" onclick="switchMainView('studio')" title="Studio & Queue">
                     <span class="sidebar-tab-icon">⚡</span>
                     <span class="sidebar-tab-label" id="lblNavStudio">Studio &amp; Queue</span>
                 </button>
-                <button class="sidebar-tab" id="tabBtnExplorer" onclick="switchMainView('explorer')">
+                <button class="sidebar-tab" id="tabBtnExplorer" onclick="switchMainView('explorer')" title="Music Folder Explorer">
                     <span class="sidebar-tab-icon">📁</span>
                     <span class="sidebar-tab-label" id="lblNavExplorer">Music Folder Explorer</span>
                 </button>
-                <button class="sidebar-tab" id="tabBtnDuplicates" onclick="switchMainView('duplicates')">
+                <button class="sidebar-tab" id="tabBtnDuplicates" onclick="switchMainView('duplicates')" title="Duplicates & Cleaner">
                     <span class="sidebar-tab-icon">👯</span>
                     <span class="sidebar-tab-label" id="lblNavDuplicates">Duplicates &amp; Cleaner</span>
                     <span id="badgeDupCount" style="background:#ef4444;color:#fff;font-size:0.7rem;padding:1px 6px;border-radius:10px;font-weight:800;display:none;margin-left:auto;flex-shrink:0;">0</span>
                 </button>
-                <button class="sidebar-tab" id="tabBtnHistory" onclick="switchMainView('history')">
+                <button class="sidebar-tab" id="tabBtnHistory" onclick="switchMainView('history')" title="Download History & Statistics">
                     <span class="sidebar-tab-icon">📜</span>
                     <span class="sidebar-tab-label" id="lblNavHistory">Download History &amp; Statistics</span>
                 </button>
-                <button class="sidebar-tab" id="tabBtnSettings" onclick="switchMainView('settings')">
+                <button class="sidebar-tab" id="tabBtnSettings" onclick="switchMainView('settings')" title="Settings & Preferences">
                     <span class="sidebar-tab-icon">⚙️</span>
                     <span class="sidebar-tab-label" id="lblNavSettings">Settings &amp; Preferences</span>
                 </button>
@@ -4682,6 +4749,36 @@
             }
         };
 
+        function toggleSidebarCollapse() {
+            const nav = document.getElementById('sidebarNav');
+            if (!nav) return;
+            const isCollapsed = nav.classList.toggle('collapsed');
+            localStorage.setItem('media_studio_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+            const btn = document.getElementById('btnToggleSidebar');
+            if (btn) btn.innerHTML = isCollapsed ? '◧' : '◨';
+        }
+
+        function initSidebarState() {
+            const isCollapsed = localStorage.getItem('media_studio_sidebar_collapsed') === 'true';
+            const nav = document.getElementById('sidebarNav');
+            if (nav && isCollapsed) {
+                nav.classList.add('collapsed');
+                const btn = document.getElementById('btnToggleSidebar');
+                if (btn) btn.innerHTML = '◧';
+            }
+        }
+
+        // Global hotkey: Ctrl+B or [ to toggle sidebar (VS Code / HA style)
+        document.addEventListener('keydown', (e) => {
+            const tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+            if ((e.ctrlKey && e.key.toLowerCase() === 'b') || e.key === '[') {
+                e.preventDefault();
+                toggleSidebarCollapse();
+            }
+        });
+
+        initSidebarState();
         loadSettingsView();
         setTheme(currentTheme);
         setLanguage(currentLang);
