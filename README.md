@@ -1,15 +1,15 @@
-# 🎵 Media Studio (Private Hub)
+# 🎵 Media Studio
 
-An automated YouTube & Spotify download manager, in-browser audio player, ID3 tag editor, duplicate cleaner, and library manager with native Home Assistant Add-on and CasaOS Docker support.
+A self-hosted personal media downloader, in-browser audio player, ID3 tag editor, duplicate cleaner, and music library manager with native Home Assistant Ingress Add-on and CasaOS Docker support.
 
 ---
 
 ## ✨ Features
 
-- **⚡ Fast Multi-Engine Extraction**: Utilizes `yt-dlp` and `spotdl` with anti-bot throttling bypass.
+- **⚡ Multi-Engine Extraction**: High-performance audio and video stream extraction powered by `yt-dlp` and `spotdl`.
 - **⚙️ Centralized Settings**: Configure download paths, desktop notifications, bitrates (320k/256k/FLAC/192k), and auto-retry rules directly from the web UI.
 - **🔔 Desktop & Browser Notifications**: Instant alerts when downloads or scheduled playlist retries finish (fully toggleable).
-- **🔁 Auto-Schedule & Smart Retry**: Continuously retries missing tracks in the background until 100% of large playlists are downloaded.
+- **🔁 Auto-Schedule & Smart Retry**: Continuously retries missing tracks in the background until 100% of large playlists are completed.
 - **👯 Duplicates & Quality Cleaner**: Detects duplicate tracks, compares bitrates, and cleans redundant lower-quality versions with 1 click.
 - **🎶 In-Browser Player & ID3 Tag Editor**: Web player with waveform progress, cover art preview, and EasyID3 tag editing.
 - **🏠 Home Assistant Ingress Add-on**: Embeds directly into the Home Assistant sidebar without exposing open ports.
@@ -32,8 +32,8 @@ http://localhost:8888
 
 ## 🏠 Home Assistant Add-on Installation
 
-1. Copy the `ha-addon` folder into your Home Assistant `/addons/local/` directory.
-2. In Home Assistant, navigate to **Settings -> Add-ons -> Add-on Store -> Check for Updates**.
+1. Copy the `ha-addon` folder into your Home Assistant `/addons/media_studio` directory.
+2. In Home Assistant, navigate to **Settings -> Apps -> App store -> ⋮ (top right) -> Check for Updates**.
 3. Install **Media Studio** and click **Start**.
 4. Enable **Show in sidebar** for seamless Ingress access.
 
@@ -56,6 +56,11 @@ python3 tests/test_media_server.py
 
 ---
 
-## ⚖️ Legal & Compliance Disclaimer
+## ⚖️ Legal & Fair-Use Compliance
 
-This project is intended strictly for educational, personal archival, and fair-use format shifting of media you have the legal right to access. All audio/video stream extraction is performed via public open-source tools (`yt-dlp`, `spotdl`, `ffmpeg`). Users are responsible for complying with the Terms of Service of content providers and local copyright laws.
+This software is provided strictly for educational purposes, personal interoperability, and fair-use format shifting of media content that the user has the lawful right to access. 
+
+- This software **does not host, store, or distribute** any copyrighted audio or video media.
+- This software **does not decrypt, bypass, or circumvent** Digital Rights Management (DRM) or technical access controls.
+- All media stream processing is executed locally on the user's hardware via established open-source toolchains (`ffmpeg`, `yt-dlp`).
+- Users are solely responsible for complying with applicable local laws and third-party platform terms of service.
