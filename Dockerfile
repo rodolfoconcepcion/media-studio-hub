@@ -22,8 +22,9 @@ RUN pip install --no-cache-dir \
 
 WORKDIR /app
 
-# Copy scripts and server
+# Copy scripts, templates and server
 COPY media_server.py /app/media_server.py
+COPY templates /app/templates
 COPY scripts /root/.agents/skills/media-downloader/scripts
 RUN chmod +x /root/.agents/skills/media-downloader/scripts/*.sh
 

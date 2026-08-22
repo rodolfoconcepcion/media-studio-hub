@@ -22,8 +22,9 @@ RUN pip3 install --no-cache-dir --break-system-packages \
 
 WORKDIR /app
 
-# Copy server and scripts
+# Copy server, templates and scripts
 COPY media_server.py /app/media_server.py
+COPY ha-addon/templates /app/templates
 COPY scripts /app/scripts
 COPY ha-addon/run.sh /run.sh
 RUN chmod +x /run.sh /app/scripts/*.sh

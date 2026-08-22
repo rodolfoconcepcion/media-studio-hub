@@ -123,11 +123,19 @@ def normalize_url(u):
     return u.strip().split("?")[0].rstrip("/")
 
 # --- Security: Path Traversal Guard ---
-_ALLOWED_ROOTS = [
-    os.path.realpath(os.path.expanduser("~/Music")),
-    os.path.realpath(os.path.expanduser("~/Videos")),
-    os.path.realpath(DATA_DIR),
-]
+def _get_allowed_roots():
+    roots = [
+        os.path.realpath(os.path.expanduser("~/Music")),
+        os.path.realpath(os.path.expanduser("~/Videos")),
+        os.path.realpath(DATA_DIR),
+        "/media",
+        "/share",
+        "/DATA/Media/Music",
+    ]
+    custom_dir = get_music_dir()
+    if custom_dir:
+        roots.append(os.path.realpath(custom_dir))
+    return [os.path.realpath(r) for r in roots if os.path.exists(r) or r.startswith(("/media", "/share", "/DATA"))]
 
 def _safe_path(filepath):
     """
@@ -137,7 +145,7 @@ def _safe_path(filepath):
     if not filepath or not isinstance(filepath, str):
         return None
     resolved = os.path.realpath(os.path.expanduser(filepath.strip()))
-    for allowed in _ALLOWED_ROOTS:
+    for allowed in _get_allowed_roots():
         try:
             if os.path.commonpath([resolved, allowed]) == allowed:
                 return resolved
