@@ -33,9 +33,10 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-        continue-on-error: true
         with:
           category: "/language:python"
+          upload: ${{ github.event.repository.private && 'never' || 'always' }}
+          upload-database: false
 
   dependency-audit:
     name: Dependency Vulnerability Audit
