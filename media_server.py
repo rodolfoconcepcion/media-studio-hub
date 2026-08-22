@@ -1755,14 +1755,15 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/api/stream":
             query = urllib.parse.parse_qs(parsed.query)
             filepath = query.get("path", [""])[0]
-            if os.path.exists(filepath) and os.path.isfile(filepath):
+            safe_fp = _safe_path(filepath)
+            if safe_fp and os.path.exists(safe_fp) and os.path.isfile(safe_fp):
                 self.send_response(200)
-                mime = "video/mp4" if filepath.endswith((".mp4", ".mkv")) else "audio/mpeg"
+                mime = "video/mp4" if safe_fp.endswith((".mp4", ".mkv")) else "audio/mpeg"
                 self.send_header("Content-Type", mime)
-                self.send_header("Content-Length", str(os.path.getsize(filepath)))
+                self.send_header("Content-Length", str(os.path.getsize(safe_fp)))
                 self.send_header("Accept-Ranges", "bytes")
                 self.end_headers()
-                with open(filepath, "rb") as f:
+                with open(safe_fp, "rb") as f:
                     while chunk := f.read(65536):
                         self.wfile.write(chunk)
                 return
@@ -1774,7 +1775,8 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/api/cover":
             query = urllib.parse.parse_qs(parsed.query)
             filepath = query.get("path", [""])[0]
-            cover = get_cover_path(filepath)
+            safe_fp = _safe_path(filepath) if filepath else None
+            cover = get_cover_path(safe_fp or filepath)
             
             if cover and os.path.exists(cover):
                 self.send_response(200)
@@ -1797,23 +1799,25 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/api/get_playlist_tracks":
             query = urllib.parse.parse_qs(parsed.query)
             m3u_path = query.get("path", [""])[0]
+            safe_m3u = _safe_path(m3u_path)
             tracks = []
-            if os.path.exists(m3u_path):
+            if safe_m3u and os.path.exists(safe_m3u):
                 try:
-                    with open(m3u_path, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(safe_m3u, "r", encoding="utf-8", errors="ignore") as f:
                         lines = [l.strip() for l in f.readlines() if l.strip() and not l.startswith("#")]
                     for l in lines:
-                        if os.path.exists(l):
-                            stat = os.stat(l)
-                            info = get_file_audio_info(l, stat.st_mtime)
+                        safe_track = _safe_path(l)
+                        if safe_track and os.path.exists(safe_track):
+                            stat = os.stat(safe_track)
+                            info = get_file_audio_info(safe_track, stat.st_mtime)
                             tracks.append({
-                                "name": os.path.basename(l),
-                                "display_title": info.get("title") or os.path.basename(l),
+                                "name": os.path.basename(safe_track),
+                                "display_title": info.get("title") or os.path.basename(safe_track),
                                 "artist": info.get("artist", ""),
                                 "album": info.get("album", ""),
                                 "duration": info.get("duration", "N/A"),
                                 "bitrate": info.get("bitrate", "N/A"),
-                                "full_path": l
+                                "full_path": safe_track
                             })
                 except:
                     pass
@@ -1862,8 +1866,12 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(get_ui_html().encode("utf-8"))
             return
-            
-        super().do_GET()
+
+        self.send_response(404)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"error": "Not Found"}).encode("utf-8"))
+
 
     def do_POST(self):
         global active_job, current_process, is_queue_paused
