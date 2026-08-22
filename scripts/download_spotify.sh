@@ -37,7 +37,7 @@ else
 fi
 
 # Post-processing: ensure clean metadata organization
-TARGET_DIR="$OUTPUT_DIR" python3 -c '
+TARGET_DIR="$OUTPUT_DIR" python3 << 'PYEOF' 2>/dev/null || true
 import os, subprocess, json, shutil, re
 
 base = os.environ.get("TARGET_DIR", os.path.expanduser("~/Music"))
@@ -48,8 +48,8 @@ os.makedirs(misc_dir, exist_ok=True)
 
 def clean_name(s):
     if not s: return ""
-    s = s.replace("’", "'").replace("‘", "'").replace("“", "'").replace("”", "'").replace("\"", "'")
-    s = re.sub(r"[\\/*?:\"<>|]", "", s).strip()
+    s = s.replace("’", "'").replace("‘", "'").replace("“", "'").replace("”", "'").replace('"', "'")
+    s = re.sub(r'[\\/*?:"<>|]', "", s).strip()
     return s
 
 for root, dirs, files in os.walk(base):
@@ -98,7 +98,7 @@ for root, dirs, files in os.walk(base, topdown=False):
     if not os.listdir(root):
         try: os.rmdir(root)
         except: pass
-' 2>/dev/null || true
+PYEOF
 
 # Clean up empty directories
 find "$OUTPUT_DIR" -type d -empty -delete 2>/dev/null || true
