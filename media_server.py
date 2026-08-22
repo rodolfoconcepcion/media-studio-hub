@@ -482,8 +482,13 @@ def get_file_audio_info(filepath, mtime):
     return info
 
 import shutil, re
-import numpy as np
-import scipy.signal as signal
+try:
+    import numpy as np
+    import scipy.signal as signal
+except ImportError:
+    np = None
+    signal = None
+
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 
@@ -503,12 +508,16 @@ def calculate_bpm(filepath):
     # Check ID3 tag first
     try:
         audio = EasyID3(filepath)
-        raw = audio.get('bpm', [''])[0]
-        if raw and raw.isdigit() and int(raw) > 0:
-            bpm_cache[filepath] = int(raw)
-            return int(raw)
+        if 'bpm' in audio and audio['bpm']:
+            val = float(audio['bpm'][0])
+            if 40 <= val <= 240:
+                bpm_cache[filepath] = round(val)
+                return bpm_cache[filepath]
     except:
         pass
+
+    if np is None or signal is None:
+        return None
         
     try:
         cmd = [
