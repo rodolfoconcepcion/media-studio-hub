@@ -1652,18 +1652,23 @@ def run_download_loop():
             
             try:
                 current_process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True)
+                job_downloaded_count = 0
                 for line in current_process.stdout:
-                    log(line.strip())
-                    # Periodic progress sync with fresh queue check
-                    curr_c = count_music_files()
+                    clean_l = line.strip()
+                    log(clean_l)
+                    if clean_l.startswith("Downloaded ") or "Downloaded \"" in clean_l or "Downloaded '" in clean_l:
+                        job_downloaded_count += 1
+                        with job_lock:
+                            fresh_q = get_queue()
+                            target_in_q = next((j for j in fresh_q if j["id"] == job["id"]), None)
+                            if target_in_q:
+                                target_in_q["downloaded_count"] = job_downloaded_count
+                                save_queue(fresh_q)
                     with job_lock:
                         fresh_q = get_queue()
                         target_in_q = next((j for j in fresh_q if j["id"] == job["id"]), None)
                         if target_in_q and target_in_q.get("status") == "cancelled":
                             break
-                        if target_in_q:
-                            target_in_q["downloaded_count"] = max(target_in_q.get("downloaded_count", 0), curr_c)
-                            save_queue(fresh_q)
                 if current_process:
                     current_process.wait()
             except Exception as e:
@@ -1675,7 +1680,6 @@ def run_download_loop():
             organize_and_sync_library()
             invalidate_library_cache()
             get_media_library(force_refresh=True)
-            final_count = count_music_files()
             
             with job_lock:
                 fresh_queue = get_queue()
@@ -1685,14 +1689,11 @@ def run_download_loop():
                         pass
                     else:
                         expected = target_job.get("expected_count") or 1
-                        if expected == 1 or "/track/" in url:
-                            actual_downloaded = 1
-                        else:
-                            try:
-                                analysis = get_job_track_analysis(url, target_job["id"])
-                                actual_downloaded = analysis.get("total_downloaded", 0)
-                            except:
-                                actual_downloaded = min(expected, final_count)
+                        try:
+                            analysis = get_job_track_analysis(url, target_job["id"])
+                            actual_downloaded = analysis.get("total_downloaded", 0)
+                        except Exception:
+                            actual_downloaded = job_downloaded_count
                         target_job["downloaded_count"] = actual_downloaded
                         
                         if "playlist" in url and auto_retry and target_job.get("retry_count", 0) < 5 and (expected is None or actual_downloaded < expected):

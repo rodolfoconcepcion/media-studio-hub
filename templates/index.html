@@ -3972,7 +3972,7 @@
                         const isDownloading = j.status === 'downloading';
                         const isPaused = j.status === 'paused';
                         const isCompleted = j.status === 'completed' || j.status === 'cancelled' || j.status === 'failed' || j.status === 'partial';
-                        const dlCount = typeof j.downloaded_count === 'number' ? j.downloaded_count : (j.status === 'completed' ? (j.expected_count || 1) : 0);
+                        const dlCount = typeof j.downloaded_count === 'number' ? j.downloaded_count : 0;
                         const hasExpected = typeof j.expected_count === 'number' && j.expected_count > 0;
                         const pct = hasExpected ? Math.min(100, Math.round((dlCount / j.expected_count) * 100)) : 0;
                         const isExpanded = expandedQueueJobs.has(j.id);
