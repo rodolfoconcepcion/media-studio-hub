@@ -808,38 +808,102 @@
             gap: 10px;
         }
 
-        /* Main View Navigation & Explorer Styles */
-        .view-nav-bar, .view-tabs {
+        /* App Body: Sidebar + Main Content Layout */
+        .app-body {
             display: flex;
-            gap: 12px;
-            margin-bottom: 22px;
-            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
         }
-        .view-tab-btn {
+        .sidebar-nav {
+            width: 210px;
+            flex-shrink: 0;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            color: var(--text-sub);
-            padding: 11px 22px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
+            border-radius: 14px;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            position: sticky;
+            top: 24px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        .sidebar-brand {
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            padding: 6px 10px 10px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 6px;
+            color: var(--text-sub);
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
-        .view-tab-btn:hover {
+        .sidebar-tab {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 10px 10px 9px;
+            border-radius: 8px;
+            border: none;
+            border-left: 3px solid transparent;
+            background: transparent;
+            color: var(--text-sub);
+            font-size: 0.87rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            transition: background 0.15s ease, color 0.15s ease, border-left-color 0.15s ease;
+        }
+        .sidebar-tab:hover {
+            background: var(--bg-item);
             color: var(--text-main);
-            border-color: var(--text-accent);
-            transform: translateY(-1px);
         }
-        .view-tab-btn.active {
-            background: var(--btn-active-bg);
-            color: #ffffff;
-            border-color: var(--btn-active-bg);
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+        .sidebar-tab.active {
+            background: rgba(2, 132, 199, 0.12);
+            color: var(--text-accent);
+            border-left-color: var(--text-accent);
+            font-weight: 700;
+        }
+        [data-theme="light"] .sidebar-tab.active {
+            background: rgba(2, 132, 199, 0.08);
+        }
+        .sidebar-tab-icon {
+            font-size: 1.05rem;
+            flex-shrink: 0;
+            width: 22px;
+            text-align: center;
+        }
+        .sidebar-tab-label {
+            flex: 1;
+            line-height: 1.3;
+            text-align: left;
+        }
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+        @media (max-width: 768px) {
+            .app-body { flex-direction: column; gap: 0; }
+            .sidebar-nav {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                position: static;
+                max-height: none;
+                border-radius: 12px;
+                margin-bottom: 16px;
+                padding: 6px;
+            }
+            .sidebar-brand { display: none; }
+            .sidebar-tab { width: auto; flex: 1 1 auto; justify-content: center; border-left: none; border-bottom: 3px solid transparent; padding: 8px 10px; border-radius: 6px; font-size: 0.8rem; }
+            .sidebar-tab.active { border-bottom-color: var(--text-accent); border-left-color: transparent; }
+            .sidebar-tab-label { display: none; }
+            .sidebar-tab-icon { width: auto; font-size: 1.2rem; }
         }
 
         .search-box {
@@ -1253,14 +1317,39 @@
             </div>
         </div>
 
-        <!-- View Navigation Bar -->
-        <div class="view-nav-bar">
-            <button class="view-tab-btn active" id="tabBtnStudio" onclick="switchMainView('studio')">⚡ <span id="lblNavStudio">Studio & Queue</span></button>
-            <button class="view-tab-btn" id="tabBtnExplorer" onclick="switchMainView('explorer')">📁 <span id="lblNavExplorer">Music Folder Explorer</span></button>
-            <button class="view-tab-btn" id="tabBtnDuplicates" onclick="switchMainView('duplicates')">👯 <span id="lblNavDuplicates">Duplicates & Cleaner</span> <span id="badgeDupCount" style="background:#ef4444; color:#fff; font-size:0.75rem; padding:2px 7px; border-radius:10px; font-weight:800; display:none; margin-left:4px;">0</span></button>
-            <button class="view-tab-btn" id="tabBtnHistory" onclick="switchMainView('history')">📜 <span id="lblNavHistory">Download History & Statistics</span></button>
-            <button class="view-tab-btn" id="tabBtnSettings" onclick="switchMainView('settings')">⚙️ <span id="lblNavSettings">Settings & Preferences</span></button>
-        </div>
+        <!-- App Body: Sidebar Nav + Main Content -->
+        <div class="app-body">
+
+            <!-- Sidebar Navigation -->
+            <nav class="sidebar-nav" id="sidebarNav">
+                <div class="sidebar-brand">
+                    <span>🎵</span> <span>Navigation</span>
+                </div>
+                <button class="sidebar-tab active" id="tabBtnStudio" onclick="switchMainView('studio')">
+                    <span class="sidebar-tab-icon">⚡</span>
+                    <span class="sidebar-tab-label" id="lblNavStudio">Studio &amp; Queue</span>
+                </button>
+                <button class="sidebar-tab" id="tabBtnExplorer" onclick="switchMainView('explorer')">
+                    <span class="sidebar-tab-icon">📁</span>
+                    <span class="sidebar-tab-label" id="lblNavExplorer">Music Folder Explorer</span>
+                </button>
+                <button class="sidebar-tab" id="tabBtnDuplicates" onclick="switchMainView('duplicates')">
+                    <span class="sidebar-tab-icon">👯</span>
+                    <span class="sidebar-tab-label" id="lblNavDuplicates">Duplicates &amp; Cleaner</span>
+                    <span id="badgeDupCount" style="background:#ef4444;color:#fff;font-size:0.7rem;padding:1px 6px;border-radius:10px;font-weight:800;display:none;margin-left:auto;flex-shrink:0;">0</span>
+                </button>
+                <button class="sidebar-tab" id="tabBtnHistory" onclick="switchMainView('history')">
+                    <span class="sidebar-tab-icon">📜</span>
+                    <span class="sidebar-tab-label" id="lblNavHistory">Download History &amp; Statistics</span>
+                </button>
+                <button class="sidebar-tab" id="tabBtnSettings" onclick="switchMainView('settings')">
+                    <span class="sidebar-tab-icon">⚙️</span>
+                    <span class="sidebar-tab-label" id="lblNavSettings">Settings &amp; Preferences</span>
+                </button>
+            </nav>
+
+            <!-- Main Content Area -->
+            <div class="main-content">
 
         <!-- VIEW 1: STUDIO & QUEUE -->
         <div id="viewStudio">
@@ -1720,8 +1809,10 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </div><!-- /viewSettings -->
+            </div><!-- /main-content -->
+        </div><!-- /app-body -->
+    </div><!-- /.container -->
 
     <!-- Track Triage Inspector Modal -->
     <div id="triageModal" class="modal-backdrop" style="display: none;">
