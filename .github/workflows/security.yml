@@ -11,11 +11,16 @@ on:
 permissions:
   contents: read
   security-events: write
+  actions: read
 
 jobs:
   codeql:
     name: CodeQL Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
 
     steps:
       - name: Checkout Repository
@@ -29,10 +34,14 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python"
 
   dependency-audit:
     name: Dependency Vulnerability Audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout Repository
