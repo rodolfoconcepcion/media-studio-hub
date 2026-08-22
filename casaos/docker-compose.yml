@@ -1,0 +1,39 @@
+name: media-studio
+services:
+  media-studio:
+    image: rodolfoconcepcion/media-studio:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: media-studio
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - /DATA/Media/Music:/root/Music
+      - /DATA/AppData/media-studio:/root/.agents/media_downloader
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Santo_Domingo
+    devices:
+      - /dev/snd:/dev/snd
+    x-casaos:
+      architectures:
+        - amd64
+        - arm64
+      main: media-studio
+      description:
+        en_us: Universal YouTube & Spotify Downloader, Audio Player, ID3 Tag Editor, Duplicate Cleaner & Library Studio.
+        es_es: Centro de descargas universal de YouTube y Spotify, reproductor de audio, editor de etiquetas ID3 y limpiador de duplicados.
+      developer: Rodolfo Concepcion
+      author: Rodolfo Concepcion
+      icon: https://raw.githubusercontent.com/rodolfoconcepcion/media-studio-hub/main/assets/icon.png
+      thumbnail: https://raw.githubusercontent.com/rodolfoconcepcion/media-studio-hub/main/assets/thumbnail.png
+      title:
+        en_us: Media Studio
+        es_es: Media Studio
+      category: Media
+      port_map: "8888"
+      scheme: http
+      index: /
