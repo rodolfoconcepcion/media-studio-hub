@@ -1,7 +1,7 @@
 name: media-studio
 services:
   media-studio:
-    image: rodolfoconcepcion/media-studio:latest
+    image: ghcr.io/rodolfoconcepcion/media-studio-hub:latest
     container_name: media-studio
     restart: unless-stopped
     network_mode: bridge
