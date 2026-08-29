@@ -33,11 +33,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install mutagen yt-dlp spotdl pyyaml
 
-      - name: Run Test Suite
+      - name: Run Test Suite & Coverage
         run: |
-          python tests/test_single_source_distribution_bdd.py
-          python tests/test_security_hardening.py
-          python tests/test_media_server.py
+          pip install coverage
+          coverage run --source=media_server -m unittest discover -s tests
+          coverage report -m
 
   validate-manifests:
     name: Validate Add-on & Compose Manifests
@@ -114,7 +114,23 @@ jobs:
             type=semver,pattern={{version}}
             type=sha,format=short
 
-      - name: Build and Push Container
+      - name: Build Local Container for Security Audit
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: media-studio-scan:local
+
+      - name: DevSecOps Trivy Container Security Audit
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: media-studio-scan:local
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Build and Push Multi-Arch Container
         uses: docker/build-push-action@v7
         with:
           context: .
