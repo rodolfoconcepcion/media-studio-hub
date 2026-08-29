@@ -106,7 +106,7 @@ find "$OUTPUT_DIR" -type d -empty -delete 2>/dev/null || true
 
 FINAL_COUNT=$(find "$OUTPUT_DIR" -type f -name "*.mp3" 2>/dev/null | wc -l)
 (
-    ACTION=$(notify-send -i audio-speakers -a "Media Downloader" -A default="Abrir Media Studio" "🎵 Descarga de Spotify Lista" "Se descargaron $NEW_SONGS nuevas canciones en ~/Music\nHaz clic para abrir Media Studio" 2>/dev/null)
+    ACTION=$(notify-send -t 5000 -i audio-speakers -a "Media Downloader" -A default="Abrir Media Studio" "🎵 Descarga de Spotify Lista" "Se descargaron $NEW_SONGS nuevas canciones en ~/Music\nHaz clic para abrir Media Studio" 2>/dev/null)
     if [ -n "$ACTION" ]; then
         xdg-open "http://localhost:8888" 2>/dev/null || true
     fi

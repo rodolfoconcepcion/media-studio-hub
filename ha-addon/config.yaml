@@ -4,6 +4,7 @@ url: "https://github.com/rodolfoconcepcion/media-studio-hub"
 documentation: "https://github.com/rodolfoconcepcion/media-studio-hub/blob/main/README.md"
 version: "1.2.3"
 slug: "media_studio"
+image: "ghcr.io/rodolfoconcepcion/media-studio-hub"
 stage: "stable"
 init: false
 arch:
