@@ -128,8 +128,8 @@ class TestMediaServerIntegration(unittest.TestCase):
                 server_address = ("127.0.0.1", TEST_PORT)
                 cls.httpd = ReusableServer(server_address, media_server.MediaHandler)
                 cls.httpd.serve_forever()
-            except Exception:
-                pass
+            except Exception as err:
+                _ = err
 
         cls.server_thread = threading.Thread(target=run_test_server, daemon=True)
         cls.server_thread.start()
@@ -148,8 +148,8 @@ class TestMediaServerIntegration(unittest.TestCase):
             try:
                 cls.httpd.shutdown()
                 cls.httpd.server_close()
-            except Exception:
-                pass
+            except Exception as err:
+                _ = err
 
     def _get(self, endpoint):
         req = urllib.request.Request(f"{SERVER_URL}{endpoint}", headers={"User-Agent": "MediaServer-Tester/1.0"})

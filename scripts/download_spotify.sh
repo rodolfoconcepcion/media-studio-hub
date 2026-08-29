@@ -74,7 +74,7 @@ for root, dirs, files in os.walk(base):
                     raw_track = str(tags.get("track", "1")).split("/")[0].strip()
                     try:
                         track_num = f"{int(raw_track):02d}"
-                    except:
+                    except Exception:
                         track_num = "01"
                         
                     target_dir = os.path.join(base, artist, album or "Single")
@@ -87,16 +87,18 @@ for root, dirs, files in os.walk(base):
                         os.remove(full_path)
                     else:
                         shutil.move(full_path, target_file)
-            except:
-                pass
+            except Exception as err:
+                _ = err
 
 # Clean empty directories
 for root, dirs, files in os.walk(base, topdown=False):
     if root == base or root == playlists_dir or root == misc_dir:
         continue
     if not os.listdir(root):
-        try: os.rmdir(root)
-        except: pass
+        try:
+            os.rmdir(root)
+        except OSError:
+            pass
 PYEOF
 
 # Clean up empty directories

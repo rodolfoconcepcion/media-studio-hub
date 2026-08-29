@@ -26,8 +26,8 @@ try:
     from mutagen.id3 import ID3, APIC
     try:
         EasyID3.RegisterTextKey('bpm', 'TBPM')
-    except Exception:
-        pass
+    except Exception as err:
+        _ = err
 except ImportError:
     EasyID3 = None
     MP3 = None
@@ -65,7 +65,7 @@ def get_settings():
                 res = DEFAULT_SETTINGS.copy()
                 res.update(s)
                 return res
-        except:
+        except Exception:
             return DEFAULT_SETTINGS.copy()
     return DEFAULT_SETTINGS.copy()
 
@@ -73,8 +73,8 @@ def save_settings(s):
     try:
         with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
             json.dump(s, f, indent=2)
-    except:
-        pass
+    except Exception as err:
+        _ = err
 
 def get_music_dir():
     s = get_settings()
@@ -88,7 +88,7 @@ def get_queue():
         try:
             with open(QUEUE_FILE, "r") as f:
                 return json.load(f)
-        except:
+        except Exception:
             return []
     return []
 
@@ -101,7 +101,7 @@ def get_history():
         try:
             with open(HISTORY_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except:
+        except Exception:
             return []
     return []
 
@@ -109,8 +109,8 @@ def save_history(hist):
     try:
         with open(HISTORY_FILE, "w", encoding="utf-8") as f:
             json.dump(hist, f, indent=2)
-    except:
-        pass
+    except Exception as err:
+        _ = err
 
 active_job = None
 current_process = None
@@ -187,7 +187,7 @@ def record_job_to_history(job, final_status=None):
         dur_secs = max(1, int(t_end - t_start))
         mins, secs = divmod(dur_secs, 60)
         dur_display = f"{mins}m {secs}s" if mins > 0 else f"{secs}s"
-    except:
+    except Exception:
         dur_secs = 0
         dur_display = "N/A"
         
@@ -334,7 +334,7 @@ def get_playlist_expected_info(url):
                 else:
                     info["expected_count"] = 1
     except Exception as e:
-        pass
+        _ = e
     return info
 
 meta_cache = {}
@@ -342,15 +342,15 @@ if os.path.exists(CACHE_FILE):
     try:
         with open(CACHE_FILE, "r") as f:
             meta_cache = json.load(f)
-    except:
+    except Exception:
         meta_cache = {}
 
 def save_cache():
     try:
         with open(CACHE_FILE, "w") as f:
             json.dump(meta_cache, f)
-    except:
-        pass
+    except Exception as err:
+        _ = err
 
 
 
@@ -409,7 +409,7 @@ def sync_playlist_m3u(folder_path):
         with open(m3u_path, "w", encoding="utf-8") as fp:
             fp.write("\n".join(lines) + "\n")
         return m3u_path
-    except:
+    except Exception:
         return None
 
 def get_cover_path(filepath):
@@ -427,8 +427,8 @@ def get_cover_path(filepath):
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3)
         if os.path.exists(cover_file) and os.path.getsize(cover_file) > 0:
             return cover_file
-    except:
-        pass
+    except Exception as err:
+        _ = err
 
     # 2. Check for local folder image in same album directory
     parent_dir = os.path.dirname(filepath)
@@ -447,8 +447,8 @@ def get_cover_path(filepath):
                     sib_cover = os.path.join(COVERS_DIR, f"{sib_hash}.jpg")
                     if os.path.exists(sib_cover) and os.path.getsize(sib_cover) > 0:
                         return sib_cover
-        except:
-            pass
+        except Exception as err:
+            _ = err
 
     # 4. Auto-Fetch & Auto-Heal from online database (iTunes / Apple Music)
     try:
@@ -481,11 +481,11 @@ def get_cover_path(filepath):
                                     data=img_data
                                 ))
                                 audio.save(v2_version=3)
-                            except:
-                                pass
+                            except Exception as err:
+                                _ = err
                             return cover_file
-    except:
-        pass
+    except Exception as err:
+        _ = err
 
     return None
 
@@ -550,8 +550,8 @@ def get_file_audio_info(filepath, mtime):
             else:
                 calc = calculate_bpm(filepath)
                 info["bpm"] = f"{calc} BPM" if calc else "N/A"
-    except:
-        pass
+    except Exception as err:
+        _ = err
         
     meta_cache[filepath] = info
     return info
@@ -572,8 +572,8 @@ def calculate_bpm(filepath):
             if 40 <= val <= 240:
                 bpm_cache[filepath] = round(val)
                 return bpm_cache[filepath]
-    except:
-        pass
+    except Exception as err:
+        _ = err
 
     if np is None or signal is None:
         return None
@@ -631,11 +631,11 @@ def calculate_bpm(filepath):
                 audio = EasyID3(filepath)
                 audio['bpm'] = str(final_bpm)
                 audio.save()
-            except:
-                pass
+            except Exception as err:
+                _ = err
                 
         return final_bpm
-    except:
+    except Exception:
         return None
 
 def clean_metadata_name(s):
@@ -687,8 +687,8 @@ def lookup_track_metadata(query):
                 }
                 metadata_cache_lookup[clean_q] = meta
                 return meta
-    except:
-        pass
+    except Exception as err:
+        _ = err
     metadata_cache_lookup[clean_q] = None
     return None
 
@@ -722,8 +722,8 @@ def search_metadata_online(query, limit=8):
                     'cover_url': high_art or raw_art,
                     'preview_url': r.get('previewUrl', '')
                 })
-    except:
-        pass
+    except Exception as err:
+        _ = err
     return results
 
 def update_track_metadata(filepath, meta):
@@ -732,7 +732,7 @@ def update_track_metadata(filepath, meta):
     try:
         try:
             audio = EasyID3(filepath)
-        except:
+        except Exception:
             audio = MP3(filepath)
             audio.add_tags()
             audio = EasyID3(filepath)
@@ -764,8 +764,8 @@ def update_track_metadata(filepath, meta):
                     data=img_data
                 ))
                 tags.save(v2_version=3)
-        except Exception:
-            pass
+        except Exception as err:
+            _ = err
 
     artist = clean_metadata_name(meta.get("artist") or "Unknown Artist")
     album = clean_metadata_name(meta.get("album") or "Single")
@@ -774,7 +774,7 @@ def update_track_metadata(filepath, meta):
     raw_track = str(meta.get("track_number", "1")).split("/")[0].strip()
     try:
         track_num = f"{int(raw_track):02d}"
-    except:
+    except Exception:
         track_num = "01"
         
     base = os.path.expanduser("~/Music")
@@ -793,7 +793,7 @@ def update_track_metadata(filepath, meta):
                 try:
                     os.rmdir(old_dir)
                     old_dir = os.path.dirname(old_dir)
-                except:
+                except OSError:
                     break
 
     organize_and_sync_library()
@@ -813,7 +813,7 @@ def delete_track_from_library(filepath):
             try:
                 os.rmdir(parent)
                 parent = os.path.dirname(parent)
-            except:
+            except OSError:
                 break
         organize_and_sync_library()
         invalidate_library_cache()
@@ -865,8 +865,8 @@ def find_duplicate_and_similar_tracks():
                         'clean_title': clean_alphanumeric_key(tit),
                         'clean_artist': clean_alphanumeric_key(art)
                     })
-                except:
-                    pass
+                except Exception as err:
+                    _ = err
 
     groups_map = {}
     for t in tracks:
@@ -926,8 +926,8 @@ def clean_all_duplicates_auto(selected_group_keys=None):
                     if fp in meta_cache:
                         del meta_cache[fp]
                     deleted_count += 1
-                except:
-                    pass
+                except Exception as err:
+                    _ = err
                     
     # Clean empty directories
     base = os.path.expanduser("~/Music")
@@ -936,7 +936,8 @@ def clean_all_duplicates_auto(selected_group_keys=None):
             continue
         if not os.listdir(root):
             try: os.rmdir(root)
-            except: pass
+            except Exception as err:
+                _ = err
             
     organize_and_sync_library()
     return {
@@ -951,7 +952,7 @@ def write_mp3_tags(filepath, meta):
     try:
         try:
             audio = EasyID3(filepath)
-        except:
+        except Exception:
             audio = MP3(filepath)
             audio.add_tags()
             audio = EasyID3(filepath)
@@ -964,7 +965,7 @@ def write_mp3_tags(filepath, meta):
         if meta.get('year'): audio['date'] = str(meta['year'])
         audio.save()
         return True
-    except:
+    except Exception:
         return False
 
 def organize_and_sync_library():
@@ -982,7 +983,8 @@ def organize_and_sync_library():
             for f in os.listdir(legacy_p_dir):
                 shutil.move(os.path.join(legacy_p_dir, f), os.path.join(playlists_dir, f))
             try: os.rmdir(legacy_p_dir)
-            except: pass
+            except Exception as err:
+                _ = err
 
     for leg_m in ["[Misc]", "Misc", "Unknown", "Unknown Artist"]:
         legacy_m_dir = os.path.join(base, leg_m)
@@ -993,7 +995,8 @@ def organize_and_sync_library():
                     if f.endswith((".mp3", ".m4a", ".flac")):
                         shutil.move(os.path.join(root, f), os.path.join(misc_dir, f))
             try: shutil.rmtree(legacy_m_dir)
-            except: pass
+            except Exception as err:
+                _ = err
         
     os.makedirs(playlists_dir, exist_ok=True)
     os.makedirs(misc_dir, exist_ok=True)
@@ -1037,7 +1040,7 @@ def organize_and_sync_library():
                         raw_track = str(info.get("track", "1")).split("/")[0].strip()
                         try:
                             track_num = f"{int(raw_track):02d}"
-                        except:
+                        except Exception:
                             track_num = "01"
                             
                         target_dir = os.path.join(base, artist, album or "Single")
@@ -1059,8 +1062,8 @@ def organize_and_sync_library():
                         genres_map.setdefault(genre, []).append(actual_path)
                     if album and album not in ["Single", "Unknown"]:
                         albums_map.setdefault(f"{artist} - {album}", []).append(actual_path)
-                except:
-                    pass
+                except Exception as err:
+                    _ = err
 
     # Clean empty directories
     for root, dirs, files in os.walk(base, topdown=False):
@@ -1068,7 +1071,8 @@ def organize_and_sync_library():
             continue
         if not os.listdir(root):
             try: os.rmdir(root)
-            except: pass
+            except Exception as err:
+                _ = err
 
     # Maintain standard library and BPM curated playlists
     if all_tracks:
@@ -1149,8 +1153,8 @@ def _scan_media_library():
                             "date": mtime_str,
                             "mtime_raw": stat.st_mtime
                         })
-                    except:
-                        pass
+                    except Exception as err:
+                        _ = err
 
     if cache_dirty:
         save_cache()
@@ -1189,8 +1193,8 @@ def get_playlists_summary():
                 try:
                     with open(m3u_path, "r", encoding="utf-8", errors="ignore") as pf:
                         lines = [l.strip() for l in pf.readlines() if l.strip() and not l.startswith("#")]
-                except:
-                    pass
+                except Exception as err:
+                    _ = err
                     
                 valid_tracks = [l for l in lines if os.path.exists(l)]
                 total_bytes = sum(os.path.getsize(t) for t in valid_tracks if os.path.exists(t))
@@ -1339,8 +1343,8 @@ def get_active_playlist_tracks(url):
                             "duration_ms": t.get("duration", 0),
                             "uri": t.get("uri", "")
                         })
-            except:
-                pass
+            except Exception as err:
+                _ = err
     
     if tracks:
         active_playlist_cache[url] = tracks
@@ -1488,7 +1492,7 @@ def get_job_track_analysis(url, job_id=None):
                             "expected_duration": dur_str
                         })
             except Exception as e:
-                pass
+                _ = e
     elif "youtube.com" in url or "youtu.be" in url:
         try:
             if "list=" in url:
@@ -1510,7 +1514,7 @@ def get_job_track_analysis(url, job_id=None):
                             "expected_duration": dur_str
                         })
         except Exception as e:
-            pass
+            _ = e
 
     if not expected_tracks:
         expected_tracks.append({
@@ -1842,8 +1846,8 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                                 "bitrate": info.get("bitrate", "N/A"),
                                 "full_path": safe_track
                             })
-                except:
-                    pass
+                except Exception as err:
+                    _ = err
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
@@ -1972,8 +1976,8 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                             try:
                                 os.killpg(os.getpgid(current_process.pid), signal.SIGSTOP)
                                 log(f"⏸️ Job paused by user: {target['url']}")
-                            except:
-                                pass
+                            except Exception as err:
+                                _ = err
                                 
                     elif action == "resume":
                         if active_job and active_job["id"] == job_id and current_process:
@@ -1981,7 +1985,7 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                                 os.killpg(os.getpgid(current_process.pid), signal.SIGCONT)
                                 target["status"] = "downloading"
                                 log(f"▶️ Job resumed: {target['url']}")
-                            except:
+                            except Exception:
                                 target["status"] = "queued"
                         else:
                             target["status"] = "queued"
@@ -1991,8 +1995,8 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                         if active_job and active_job["id"] == job_id and current_process:
                             try:
                                 os.killpg(os.getpgid(current_process.pid), signal.SIGKILL)
-                            except:
-                                pass
+                            except Exception as err:
+                                _ = err
                             active_job = None
                             current_process = None
                         target["status"] = "queued"
@@ -2009,14 +2013,14 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                             try:
                                 os.killpg(os.getpgid(current_process.pid), signal.SIGKILL)
                                 log(f"🛑 Active process terminated by user: {target['url']}")
-                            except:
-                                pass
+                            except Exception as err:
+                                _ = err
                             active_job = None
                             current_process = None
                         try:
                             subprocess.run(["pkill", "-9", "-f", "spotdl|yt-dlp|download_spotify"], capture_output=True)
-                        except Exception:
-                            pass
+                        except Exception as err:
+                            _ = err
                             
                     save_queue(q)
                     record_job_to_history(target, target.get("status"))
@@ -2038,14 +2042,14 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                 if target and active_job and active_job["id"] == job_id and current_process:
                     try:
                         os.killpg(os.getpgid(current_process.pid), signal.SIGKILL)
-                    except:
-                        pass
+                    except Exception as err:
+                        _ = err
                     active_job = None
                     current_process = None
                     try:
                         subprocess.run(["pkill", "-9", "-f", "spotdl|yt-dlp|download_spotify"], capture_output=True)
-                    except Exception:
-                        pass
+                    except Exception as err:
+                        _ = err
                 q = [j for j in q if j["id"] != job_id]
                 save_queue(q)
                 
@@ -2368,16 +2372,16 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                         try:
                             os.killpg(os.getpgid(current_process.pid), signal.SIGSTOP)
                             active_job["status"] = "paused"
-                        except:
-                            pass
+                        except Exception as err:
+                            _ = err
                 else:
                     log("▶️ Global download queue RESUMED by user.")
                     if active_job and current_process:
                         try:
                             os.killpg(os.getpgid(current_process.pid), signal.SIGCONT)
                             active_job["status"] = "downloading"
-                        except:
-                            pass
+                        except Exception as err:
+                            _ = err
                             
                 q = get_queue()
                 save_queue(q)
@@ -2415,8 +2419,8 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/api/test_notification":
             try:
                 subprocess.Popen(["notify-send", "-i", "audio-speakers", "-a", "Media Studio", "🔔 Media Studio Test", "Desktop notifications are working perfectly!"])
-            except:
-                pass
+            except Exception as err:
+                _ = err
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
