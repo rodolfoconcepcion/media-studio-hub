@@ -1,0 +1,12 @@
+name: "CodeQL Custom Configuration"
+
+# Restrict analysis to production server and scripts
+paths:
+  - 'media_server.py'
+  - 'scripts'
+
+# Ignore mirror directories and test fixtures
+paths-ignore:
+  - '.agents/**'
+  - 'ha-addon/**'
+  - 'tests/**'
