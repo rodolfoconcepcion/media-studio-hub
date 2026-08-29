@@ -122,7 +122,72 @@ def normalize_url(u):
         return ""
     return u.strip().split("?")[0].rstrip("/")
 
-# --- Security: Path Traversal Guard ---
+# --- Security: Hostname Whitelists & Path Traversal Guard ---
+ALLOWED_MEDIA_HOSTS = (
+    "spotify.com",
+    "open.spotify.com",
+    "youtube.com",
+    "www.youtube.com",
+    "m.youtube.com",
+    "music.youtube.com",
+    "youtu.be",
+    "soundcloud.com",
+    "bandcamp.com",
+    "tiktok.com",
+    "apple.com",
+    "music.apple.com",
+    "example.com",
+)
+
+ALLOWED_RESOURCE_HOSTS = (
+    "mzstatic.com",
+    "apple.com",
+    "itunes.apple.com",
+    "scdn.co",
+    "spotifycdn.com",
+    "ytimg.com",
+    "googleusercontent.com",
+    "youtube.com",
+)
+
+def is_valid_media_service_url(url):
+    """Strictly validates media service URLs to prevent SSRF and command injection."""
+    if not url or not isinstance(url, str):
+        return False
+    # Reject shell metacharacters and control characters
+    if re.search(r'[;&|`$\n\r\t<>\\\'"]', url):
+        return False
+    try:
+        parsed = urllib.parse.urlsplit(url.strip())
+        if parsed.scheme not in ("http", "https"):
+            return False
+        host = (parsed.hostname or "").lower()
+        if not host:
+            return False
+        return any(host == d or host.endswith("." + d) for d in ALLOWED_MEDIA_HOSTS)
+    except Exception:
+        return False
+
+def is_safe_remote_resource_url(url):
+    """Strictly validates external image and API URLs to prevent SSRF."""
+    if not url or not isinstance(url, str):
+        return False
+    try:
+        parsed = urllib.parse.urlsplit(url.strip())
+        if parsed.scheme != "https":
+            return False
+        host = (parsed.hostname or "").lower()
+        if not host:
+            return False
+        # Block localhost, loopback, private RFC1918 IPs, link-local
+        if host in ("localhost", "127.0.0.1", "::1", "169.254.169.254"):
+            return False
+        if host.startswith(("10.", "192.168.", "172.16.", "172.17.", "172.18.", "172.19.", "172.20.", "172.21.", "172.22.", "172.23.", "172.24.", "172.25.", "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.")):
+            return False
+        return any(host == d or host.endswith("." + d) for d in ALLOWED_RESOURCE_HOSTS)
+    except Exception:
+        return False
+
 def _get_allowed_roots():
     roots = [
         os.path.realpath(os.path.expanduser("~/Music")),
@@ -139,18 +204,25 @@ def _get_allowed_roots():
 
 def _safe_path(filepath):
     """
-    Returns the resolved absolute path if it is inside an allowed root directory,
+    Returns the resolved canonical path if it is strictly inside an allowed root directory,
     or None if the path would escape allowed directories (path traversal attempt).
     """
     if not filepath or not isinstance(filepath, str):
         return None
-    resolved = os.path.realpath(os.path.expanduser(filepath.strip()))
-    for allowed in _get_allowed_roots():
-        try:
-            if os.path.commonpath([resolved, allowed]) == allowed:
-                return resolved
-        except ValueError:
-            continue
+    cleaned = filepath.strip()
+    if not cleaned or "\0" in cleaned:
+        return None
+    try:
+        resolved = os.path.realpath(os.path.abspath(os.path.expanduser(cleaned)))
+        for allowed in _get_allowed_roots():
+            allowed_real = os.path.realpath(allowed)
+            try:
+                if os.path.commonpath([resolved, allowed_real]) == allowed_real:
+                    return resolved
+            except (ValueError, OSError):
+                continue
+    except (ValueError, OSError):
+        return None
     return None
 
 # --- Performance: TTL-based library + analytics cache ---
@@ -280,10 +352,12 @@ init_history_from_queue_and_library()
 
 def get_playlist_expected_info(url):
     info = {"expected_count": None, "title": None, "type": "Media", "artist": None}
-    if not url:
+    if not url or not is_valid_media_service_url(url):
         return info
     try:
-        if "spotify.com" in url:
+        parsed_url = urllib.parse.urlsplit(url)
+        host = (parsed_url.hostname or "").lower()
+        if host == "spotify.com" or host.endswith(".spotify.com"):
             m = re.search(r'(playlist|album|track|artist)/([a-zA-Z0-9]+)', url)
             if m:
                 t_type, t_id = m.group(1), m.group(2)
@@ -314,9 +388,10 @@ def get_playlist_expected_info(url):
                         info["expected_count"] = len(tracks) if tracks else 50
                         info["type"] = "Playlist"
                         info["title"] = raw_title or "Spotify Playlist"
-        elif "youtube.com" in url or "youtu.be" in url:
-            if "list=" in url:
-                cmd = ["uvx", "yt-dlp", "--flat-playlist", "--dump-single-json", "--no-warnings", url]
+        elif host == "youtu.be" or host == "youtube.com" or host.endswith(".youtube.com"):
+            safe_url = parsed_url.geturl()
+            if "list=" in safe_url:
+                cmd = ["uvx", "yt-dlp", "--flat-playlist", "--dump-single-json", "--no-warnings", "--", safe_url]
                 res = subprocess.run(cmd, capture_output=True, text=True, timeout=6)
                 if res.returncode == 0:
                     data = json.loads(res.stdout)
@@ -324,7 +399,7 @@ def get_playlist_expected_info(url):
                     info["title"] = data.get("title") or "YouTube Playlist"
                     info["type"] = "Playlist"
             else:
-                cmd = ["uvx", "yt-dlp", "--dump-single-json", "--no-warnings", url]
+                cmd = ["uvx", "yt-dlp", "--dump-single-json", "--no-warnings", "--", safe_url]
                 res = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
                 if res.returncode == 0:
                     data = json.loads(res.stdout)
@@ -413,9 +488,10 @@ def sync_playlist_m3u(folder_path):
         return None
 
 def get_cover_path(filepath):
-    if not filepath or not os.path.exists(filepath):
+    safe_fp = _safe_path(filepath)
+    if not safe_fp or not os.path.exists(safe_fp):
         return None
-    file_hash = hashlib.md5(filepath.encode("utf-8")).hexdigest()
+    file_hash = hashlib.md5(safe_fp.encode("utf-8")).hexdigest()
     cover_file = os.path.join(COVERS_DIR, f"{file_hash}.jpg")
     
     if os.path.exists(cover_file) and os.path.getsize(cover_file) > 0:
@@ -423,7 +499,7 @@ def get_cover_path(filepath):
         
     # 1. Try extracting embedded APIC from the file with ffmpeg
     try:
-        cmd = ["ffmpeg", "-y", "-i", filepath, "-an", "-vcodec", "copy", cover_file]
+        cmd = ["ffmpeg", "-y", "-i", safe_fp, "-an", "-vcodec", "copy", cover_file]
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3)
         if os.path.exists(cover_file) and os.path.getsize(cover_file) > 0:
             return cover_file
@@ -458,13 +534,15 @@ def get_cover_path(filepath):
         q = f"{artist} {title}".strip()
         if q:
             url = f"https://itunes.apple.com/search?term={urllib.parse.quote(q)}&media=music&entity=song&limit=1"
+            if not is_safe_remote_resource_url(url):
+                return None
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=4) as res:
                 data = json.loads(res.read().decode())
                 results = data.get("results", [])
                 if results:
                     art_url = results[0].get("artworkUrl100", "").replace("100x100bb.jpg", "1000x1000bb.jpg")
-                    if art_url:
+                    if art_url and is_safe_remote_resource_url(art_url):
                         art_req = urllib.request.Request(art_url, headers={"User-Agent": "Mozilla/5.0"})
                         with urllib.request.urlopen(art_req, timeout=6) as img_res:
                             img_data = img_res.read()
@@ -671,6 +749,8 @@ def lookup_track_metadata(query):
             'entity': 'song',
             'limit': 1
         })
+        if not is_safe_remote_resource_url(url):
+            return None
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=4) as response:
             data = json.loads(response.read().decode())
@@ -705,6 +785,8 @@ def search_metadata_online(query, limit=8):
             'entity': 'song',
             'limit': limit
         })
+        if not is_safe_remote_resource_url(url):
+            return None
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=4) as response:
             data = json.loads(response.read().decode())
@@ -727,8 +809,10 @@ def search_metadata_online(query, limit=8):
     return results
 
 def update_track_metadata(filepath, meta):
-    if not os.path.exists(filepath):
-        return {"success": False, "error": "File not found"}
+    safe_fp = _safe_path(filepath)
+    if not safe_fp or not os.path.exists(safe_fp):
+        return {"success": False, "error": "File not found or access denied"}
+    filepath = safe_fp
     try:
         try:
             audio = EasyID3(filepath)
@@ -748,7 +832,7 @@ def update_track_metadata(filepath, meta):
         return {"success": False, "error": f"Failed to save ID3 tags: {e}"}
 
     cover_url = meta.get("cover_url")
-    if cover_url and cover_url.startswith("http"):
+    if cover_url and is_safe_remote_resource_url(cover_url):
         try:
             req = urllib.request.Request(cover_url, headers={'User-Agent': 'Mozilla/5.0'})
             img_data = urllib.request.urlopen(req, timeout=5).read()
@@ -801,12 +885,13 @@ def update_track_metadata(filepath, meta):
     return {"success": True, "new_path": final_path}
 
 def delete_track_from_library(filepath):
-    if not os.path.exists(filepath):
-        return {"success": False, "error": "File not found"}
+    safe_fp = _safe_path(filepath)
+    if not safe_fp or not os.path.exists(safe_fp):
+        return {"success": False, "error": "File not found or access denied"}
     try:
-        os.remove(filepath)
-        if filepath in meta_cache:
-            del meta_cache[filepath]
+        os.remove(safe_fp)
+        if safe_fp in meta_cache:
+            del meta_cache[safe_fp]
         base = os.path.expanduser("~/Music")
         parent = os.path.dirname(filepath)
         while parent and parent != base and not os.listdir(parent):
@@ -918,13 +1003,14 @@ def clean_all_duplicates_auto(selected_group_keys=None):
         if selected_group_keys and grp['group_key'] not in selected_group_keys:
             continue
         for it in grp['items'][1:]: # All items except the best one
-            fp = it['path']
-            if os.path.exists(fp):
+            fp = it.get('path')
+            safe_fp = _safe_path(fp)
+            if safe_fp and os.path.exists(safe_fp):
                 try:
-                    freed_bytes += os.path.getsize(fp)
-                    os.remove(fp)
-                    if fp in meta_cache:
-                        del meta_cache[fp]
+                    freed_bytes += os.path.getsize(safe_fp)
+                    os.remove(safe_fp)
+                    if safe_fp in meta_cache:
+                        del meta_cache[safe_fp]
                     deleted_count += 1
                 except Exception as err:
                     _ = err
@@ -1021,8 +1107,10 @@ def organize_and_sync_library():
                     genre = clean_metadata_name(info.get("genre"))
                     
                     # If artist or album is missing, attempt metadata lookup!
-                    if not artist or artist.lower() in ["unknown", "unknown artist"] or not album or album.lower() in ["single", "unknown"]:
-                        query = f"{artist} {title}".strip() if artist and artist.lower() not in ["unknown", "unknown artist"] else title
+                    missing_artist = not artist or artist.lower() in ["unknown", "unknown artist"]
+                    missing_album = not album or album.lower() in ["single", "unknown"]
+                    if missing_artist or missing_album:
+                        query = title if missing_artist else f"{artist} {title}".strip()
                         meta = lookup_track_metadata(query)
                         if meta and meta.get("artist"):
                             write_mp3_tags(full_path, meta)
@@ -1324,7 +1412,11 @@ def get_active_playlist_tracks(url):
         return active_playlist_cache[url]
     
     tracks = []
-    if "spotify.com" in url:
+    if not is_valid_media_service_url(url):
+        return []
+    parsed_url = urllib.parse.urlsplit(url)
+    host = (parsed_url.hostname or "").lower()
+    if host == "spotify.com" or host.endswith(".spotify.com"):
         m = re.search(r'(playlist|album)/([a-zA-Z0-9]+)', url)
         if m:
             t_type, t_id = m.group(1), m.group(2)
@@ -1380,9 +1472,6 @@ def get_triage_data(active_job, queue_items, logs):
                 track_logs.append(line)
         
         retry_count = 0
-        status = "queued"
-        status_note = "In queue"
-        
         if matched_item:
             status = "downloaded"
             status_note = f"Downloaded ({matched_item.get('bitrate', '320k')} • {matched_item.get('size', '')})"
@@ -1458,13 +1547,15 @@ def is_item_ready(item):
     return False
 
 def get_job_track_analysis(url, job_id=None):
-    if not url:
-        return {"error": "Invalid URL"}
+    if not url or not is_valid_media_service_url(url):
+        return {"error": "Invalid or untrusted URL"}
     
     expected_tracks = []
     meta = get_playlist_expected_info(url)
+    parsed_url = urllib.parse.urlsplit(url)
+    host = (parsed_url.hostname or "").lower()
     
-    if "spotify.com" in url:
+    if host == "spotify.com" or host.endswith(".spotify.com"):
         m = re.search(r'(playlist|album|track|artist)/([a-zA-Z0-9]+)', url)
         if m:
             t_type, t_id = m.group(1), m.group(2)
@@ -1493,10 +1584,11 @@ def get_job_track_analysis(url, job_id=None):
                         })
             except Exception as e:
                 _ = e
-    elif "youtube.com" in url or "youtu.be" in url:
+    elif host == "youtu.be" or host == "youtube.com" or host.endswith(".youtube.com"):
+        safe_url = parsed_url.geturl()
         try:
-            if "list=" in url:
-                cmd = ["uvx", "yt-dlp", "--flat-playlist", "--dump-single-json", "--no-warnings", url]
+            if "list=" in safe_url:
+                cmd = ["uvx", "yt-dlp", "--flat-playlist", "--dump-single-json", "--no-warnings", "--", safe_url]
                 res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
                 if res.returncode == 0:
                     data = json.loads(res.stdout)
@@ -1638,7 +1730,6 @@ def run_download_loop():
             
             log(f"🚀 STARTING DOWNLOAD: {url} (Mode: {mode})")
             
-            initial_count = count_music_files()
             
             home_dir = os.path.expanduser("~")
             base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1650,7 +1741,9 @@ def run_download_loop():
             if not os.path.exists(script_yt):
                 script_yt = os.path.join(home_dir, ".agents", "skills", "media-downloader", "scripts", "download_youtube.sh")
 
-            if "spotify.com" in url:
+            parsed_job_url = urllib.parse.urlsplit(url)
+            job_host = (parsed_job_url.hostname or "").lower()
+            if job_host == "spotify.com" or job_host.endswith(".spotify.com"):
                 cmd = ["bash", script_spotify, url, get_music_dir()]
             else:
                 cmd = ["bash", script_yt, url, "--video" if mode == "video" else "--audio", get_music_dir()]
@@ -1803,9 +1896,11 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
             query = urllib.parse.parse_qs(parsed.query)
             filepath = query.get("path", [""])[0]
             safe_fp = _safe_path(filepath) if filepath else None
-            cover = get_cover_path(safe_fp or filepath)
+            cover = get_cover_path(safe_fp) if safe_fp else None
+            safe_cover = _safe_path(cover) if cover else None
             
-            if cover and os.path.exists(cover):
+            if safe_cover and os.path.exists(safe_cover):
+                cover = safe_cover
                 self.send_response(200)
                 self.send_header("Content-Type", "image/jpeg")
                 self.send_header("Cache-Control", "public, max-age=86400")
