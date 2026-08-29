@@ -15,7 +15,32 @@ Features Tested:
 import unittest
 import os
 import glob
-import yaml
+try:
+    import yaml
+except ImportError:
+    class FallbackYaml:
+        @staticmethod
+        def safe_load(f):
+            content = f.read() if hasattr(f, "read") else str(f)
+            data = {"arch": []}
+            in_arch = False
+            for line in content.splitlines():
+                s = line.strip()
+                if not s or s.startswith("#"):
+                    continue
+                if s == "arch:":
+                    in_arch = True
+                    continue
+                if in_arch:
+                    if s.startswith("- "):
+                        data["arch"].append(s[2:].strip())
+                    elif ":" in s:
+                        in_arch = False
+                if ":" in s:
+                    k, v = s.split(":", 1)
+                    data[k.strip()] = v.strip().strip('"').strip("'")
+            return data
+    yaml = FallbackYaml()
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
