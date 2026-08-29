@@ -2169,7 +2169,10 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
             m3u = sync_playlist_m3u(folder_path)
             
             if m3u and os.path.exists(m3u):
-                subprocess.Popen(["vlc", m3u], start_new_session=True)
+                try:
+                    subprocess.Popen(["vlc", "--", m3u], start_new_session=True)
+                except Exception as err:
+                    log(f"⚠️ Failed to launch VLC playlist: {err}")
                 
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -2193,11 +2196,14 @@ class MediaHandler(http.server.SimpleHTTPRequestHandler):
                 if "XDG_RUNTIME_DIR" not in env:
                     env["XDG_RUNTIME_DIR"] = f"/run/user/{os.getuid()}"
 
-                if action == "vlc":
-                    subprocess.Popen(["vlc", "--", safe_fp], env=env, start_new_session=True)
-                elif action == "folder":
-                    folder = os.path.dirname(safe_fp) if os.path.isfile(safe_fp) else safe_fp
-                    subprocess.Popen(["xdg-open", folder], env=env, start_new_session=True)
+                try:
+                    if action == "vlc":
+                        subprocess.Popen(["vlc", "--", safe_fp], env=env, start_new_session=True)
+                    elif action == "folder":
+                        folder = os.path.dirname(safe_fp) if os.path.isfile(safe_fp) else safe_fp
+                        subprocess.Popen(["xdg-open", folder], env=env, start_new_session=True)
+                except Exception as err:
+                    log(f"⚠️ Failed to launch local player/folder: {err}")
             elif filepath and not safe_fp:
                 self.send_response(403)
                 self.send_header("Content-Type", "application/json")
