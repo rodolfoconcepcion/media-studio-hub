@@ -1,4 +1,4 @@
 -r requirements.txt
-playwright>=1.65.1
+playwright>=1.65.2
 bandit>=1.9.4
 pip-audit>=2.10.1
